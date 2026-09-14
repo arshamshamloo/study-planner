@@ -1,0 +1,15 @@
+{
+  "name": "برنامه مطالعه هفتگی",
+  "short_name": "برنامه هفتگی",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EDF5F1",
+  "theme_color": "#0F3D3A",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
