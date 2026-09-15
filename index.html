@@ -681,6 +681,172 @@ table.export-table.d-table td .ex-missed{display:inline-block; background:var(--
 .export-capture .ex-notes .ex-note{font-size:14.5px; color:var(--text); margin-bottom:6px; line-height:1.9;}
 .export-capture .ex-notes .ex-note:last-child{margin-bottom:0;}
 .export-capture .ex-notes .ex-note b{color:var(--heading);}
+
+/* ============ quick picker sheet ============ */
+.picker-overlay{
+  position:fixed; inset:0;
+  background:rgba(11,46,44,0.45);
+  z-index:60;
+  display:flex; align-items:flex-end; justify-content:center;
+}
+.picker-overlay.hidden{display:none;}
+.picker-sheet{
+  background:var(--parchment);
+  width:100%;
+  max-width:640px;
+  max-height:85vh;
+  overflow-y:auto;
+  border-radius:18px 18px 0 0;
+  padding:8px 16px 18px;
+  box-shadow:0 -10px 40px rgba(11,46,44,0.3);
+}
+.picker-grab{width:44px;height:4px;border-radius:2px;background:var(--line);margin:6px auto 10px;}
+.picker-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.picker-head h3{margin:0;font-size:16px;font-weight:800;color:var(--heading);}
+.picker-close{
+  width:32px;height:32px;border-radius:9px;border:1px solid var(--line);
+  background:var(--parchment-2);color:var(--text-muted);font-size:15px;cursor:pointer;
+}
+.picker-close:hover{color:var(--weak);border-color:var(--miss-line);background:var(--miss-soft);}
+.picker-search{
+  width:100%;
+  background:var(--parchment-2);
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-size:14.5px;
+  color:var(--text);
+  padding:9px 12px;
+  outline:none;
+}
+.picker-search:focus{border-color:var(--amber-2);}
+.picker-sec{font-size:12px;color:var(--text-muted);margin:10px 2px 6px;font-weight:700;}
+.chip-grid{display:flex;flex-wrap:wrap;gap:7px;}
+.pick-chip{
+  background:var(--parchment-2);
+  border:1px solid var(--line);
+  border-radius:999px;
+  color:var(--text);
+  font-size:13.5px;
+  font-weight:600;
+  padding:7px 13px;
+  cursor:pointer;
+  transition:background .15s, border-color .15s, color .15s, transform .1s;
+}
+.pick-chip:active{transform:scale(.96);}
+.pick-chip.sel{background:var(--amber);border-color:var(--amber-2);color:#fff;}
+.pick-chip.add{border-style:dashed;color:var(--amber-2);border-color:var(--amber);background:transparent;}
+.pick-empty{font-size:13px;color:var(--text-muted);padding:4px 2px;}
+.picker-detail{
+  width:100%;
+  background:var(--parchment-2);
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-size:14.5px;
+  color:var(--text);
+  padding:9px 12px;
+  outline:none;
+}
+.picker-detail:focus{border-color:var(--amber-2);}
+.picker-preview{
+  margin-top:10px;
+  background:#F0FDFA;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:9px 12px;
+  font-size:14.5px;
+  font-weight:700;
+  color:var(--heading);
+  min-height:21px;
+}
+.picker-actions{display:flex;gap:10px;margin-top:12px;}
+.picker-actions .btn{flex:1;}
+
+/* ============ library manager ============ */
+.lib-sec{font-size:12.5px;font-weight:800;color:var(--heading);margin:14px 0 6px;}
+.lib-list{border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.lib-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;
+  border-bottom:1px solid var(--line);
+}
+.lib-item:last-child{border-bottom:none;}
+.lib-name{font-size:14.5px;color:var(--text);}
+.lib-rename{
+  flex:1;font-size:14.5px;color:var(--text);
+  background:var(--parchment-2);border:1px solid var(--amber);border-radius:6px;
+  padding:4px 8px;outline:none;
+}
+.lib-btns{display:flex;gap:6px;}
+.lib-edit,.lib-del{
+  width:28px;height:28px;border-radius:7px;border:1px solid transparent;
+  background:transparent;color:var(--text-muted);font-size:13px;cursor:pointer;
+}
+.lib-edit:hover{color:var(--amber-2);border-color:var(--line);background:var(--parchment-2);}
+.lib-del:hover{color:var(--weak);border-color:var(--miss-line);background:var(--miss-soft);}
+.lib-empty{padding:10px;font-size:13px;color:var(--text-muted);text-align:center;}
+.lib-add{display:flex;gap:8px;margin-top:8px;}
+.lib-add input{
+  flex:1;min-width:0;background:var(--parchment-2);
+  border:1px solid var(--line);border-radius:10px;
+  font-size:14px;color:var(--text);padding:8px 12px;outline:none;
+}
+.lib-add input:focus{border-color:var(--amber-2);}
+.lib-add .btn{flex:0 0 auto;padding:8px 14px;font-size:13.5px;}
+.btn-ghost2{background:transparent;color:var(--amber-2);border:1px solid var(--line);}
+
+/* ============ per-subject summary card ============ */
+.subj-card{
+  margin:0 14px 16px;
+  background:var(--parchment);
+  border:1px solid var(--line);
+  border-radius:12px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.subj-head{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;background:transparent;border:none;
+  padding:12px 14px;
+  font-size:14.5px;font-weight:800;color:var(--heading);
+  cursor:pointer;
+}
+.subj-arrow{color:var(--text-muted);font-size:13px;}
+.subj-body{padding:0 14px 12px;display:flex;flex-direction:column;gap:8px;}
+.subj-row{
+  background:var(--parchment-2);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px 12px;
+}
+.subj-row.all{border-color:var(--sage);background:#F2FBF6;}
+.subj-row.all .subj-name{color:var(--sage-2);}
+.subj-line1{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.subj-name{font-size:14.5px;font-weight:700;color:var(--heading);}
+.subj-done{font-size:12.5px;color:var(--text-muted);}
+.subj-row.all .subj-done{color:var(--sage-2);font-weight:700;}
+.subj-line2{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;}
+.subj-chip{
+  background:var(--parchment);
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:12px;
+  color:var(--amber-2);
+  font-weight:600;
+  padding:2px 10px;
+}
+
+/* topic field opens the quick picker */
+input.topic{cursor:pointer;}
+
+/* ============ export: per-subject table ============ */
+.export-capture .ex-sec-title{
+  margin:14px 2px 8px;
+  font-size:15.5px;
+  font-weight:800;
+  color:var(--heading);
+}
+table.export-table.subj-table{border-radius:12px;}
+table.export-table.subj-table tbody th{text-align:right;padding-inline-start:12px;}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -694,6 +860,7 @@ table.export-table.d-table td .ex-missed{display:inline-block; background:var(--
       <h1>برنامه مطالعه هفتگی</h1>
       <p class="sub">هفته جدید بساز، هر روز عملکردت را ثبت کن و تصویرش را برای مشاورت بفرست</p>
       <div class="archive-row">
+        <button class="btn btn-small" id="libraryBtn">کتابخانه دروس</button>
         <button class="btn btn-small" id="backupBtn">پشتیبان‌گیری</button>
         <button class="btn btn-small" id="restoreBtn">بازیابی</button>
         <input type="file" id="restoreFile" accept=".json,application/json" hidden>
@@ -727,6 +894,11 @@ table.export-table.d-table td .ex-missed{display:inline-block; background:var(--
     <nav class="daytabs" id="dayTabs"></nav>
 
     <main class="sheet" id="sheetArea"></main>
+
+    <section class="subj-card hidden" id="subjCard">
+      <button class="subj-head" id="subjToggle"><span>جمع‌بندی دروس</span><span class="subj-arrow" id="subjArrow">▴</span></button>
+      <div class="subj-body" id="subjBody"></div>
+    </section>
   </section>
 </div>
 
@@ -757,6 +929,53 @@ table.export-table.d-table td .ex-missed{display:inline-block; background:var(--
       <button class="btn btn-secondary" id="downloadBtn" disabled>دانلود</button>
       <button class="btn btn-ghost" id="copyBtn" hidden>کپی تصویر</button>
       <button class="btn btn-ghost" id="closeOverlay">بازگشت</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Subject/type quick picker ============ -->
+<div class="picker-overlay hidden" id="pickerOverlay">
+  <div class="picker-sheet" id="pickerSheet">
+    <div class="picker-grab"></div>
+    <div class="picker-head">
+      <h3>درس و نوع خواندن</h3>
+      <button class="picker-close" id="pickerClose" title="بستن">✕</button>
+    </div>
+    <input class="picker-search" id="pickerSearch" type="text" placeholder="جستجو یا تایپ نام درس جدید…">
+    <div class="picker-sec">درس</div>
+    <div class="chip-grid" id="pickerSubjects"></div>
+    <div class="picker-sec">نوع خواندن</div>
+    <div class="chip-grid" id="pickerTypes"></div>
+    <div class="picker-sec">جزئیات (اختیاری)</div>
+    <input class="picker-detail" id="pickerDetail" type="text" placeholder="مثلاً فصل ۲ — صفحات ۴۵ تا ۶۰">
+    <div class="picker-preview" id="pickerPreview"></div>
+    <div class="picker-actions">
+      <button class="btn btn-primary" id="pickerCommit">ثبت</button>
+      <button class="btn btn-secondary2" id="pickerFreeEdit">ویرایش آزاد متن</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Library manager ============ -->
+<div class="overlay hidden" id="libOverlay">
+  <div class="overlay-inner">
+    <h2>کتابخانه دروس</h2>
+    <p class="hint">درس‌ها و انواع خواندنی که در انتخاب سریع نشان داده می‌شوند. تغییر نام یا حذف، جلسه‌های قبلی را تغییر نمی‌دهد.</p>
+    <div class="lib-sec">درس‌ها</div>
+    <div class="lib-list" id="libSubjects"></div>
+    <div class="lib-add">
+      <input id="libNewSubject" type="text" placeholder="نام درس جدید…">
+      <button class="btn btn-secondary2" id="libAddSubject">+ افزودن</button>
+    </div>
+    <div class="lib-sec">انواع خواندن</div>
+    <div class="lib-list" id="libTypes"></div>
+    <div class="lib-add">
+      <input id="libNewType" type="text" placeholder="نوع جدید…">
+      <button class="btn btn-secondary2" id="libAddType">+ افزودن</button>
+    </div>
+    <div class="overlay-actions">
+      <button class="btn btn-ghost2" id="libReset">بازگردانی پیش‌فرض‌ها</button>
+      <button class="btn btn-secondary" id="libClose">بستن</button>
     </div>
   </div>
 </div>
@@ -807,6 +1026,31 @@ var SESSION_COUNT = 8;
 var STORAGE_KEY = 'study-planner-v3';
 var APP_VERSION = '1.0.0';
 var J_MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+
+/* ==================== subject library ==================== */
+var LIB_SUBJECT_PRESETS = ['ریاضی','فیزیک','شیمی','زیست','ادبیات','عربی','دینی','زبان انگلیسی'];
+var LIB_TYPE_PRESETS = ['تست','فیلم','استادی','تحلیل آزمون','مرور','جزوه','کتاب درسی'];
+function defaultLibrary(){
+  return { subjects: LIB_SUBJECT_PRESETS.slice(), types: LIB_TYPE_PRESETS.slice() };
+}
+function sanitizeLibrary(lib){
+  var d = defaultLibrary();
+  function cleanArr(arr){
+    if (!Array.isArray(arr)) return null;
+    var out = [];
+    arr.forEach(function(x){
+      if (typeof x === 'string' && x.trim() && out.indexOf(x.trim()) === -1) out.push(x.trim());
+    });
+    return out.length ? out : null;
+  }
+  if (!lib || typeof lib !== 'object') return d;
+  var s = cleanArr(lib.subjects), t = cleanArr(lib.types);
+  return { subjects: s || d.subjects, types: t || d.types };
+}
+function getLibrary(){
+  if (!state.library) state.library = defaultLibrary();
+  return state.library;
+}
 
 /* ==================== utils ==================== */
 function toFa(n){
@@ -867,7 +1111,7 @@ function suggestWeekLabel(){
 function emptyDay(){
   var sessions = [];
   for (var i = 0; i < SESSION_COUNT; i++){
-    sessions.push({ topic:'', from:'', to:'', usefulTime:'', testCount:'', testPercent:'', done:false });
+    sessions.push({ topic:'', from:'', to:'', usefulTime:'', testCount:'', testPercent:'', done:false, subject:'', type:'', detail:'' });
   }
   return { sessions: sessions, rest:'', note:'' };
 }
@@ -881,7 +1125,7 @@ function emptyWeek(label){
     days: days
   };
 }
-var state = { studentName:'', weeks:[], lastWeekId:null };
+var state = { studentName:'', weeks:[], lastWeekId:null, library:null };
 var currentWeekId = null;
 var activeDay = DAY_NAMES[0];
 var saveTimer = null;
@@ -914,6 +1158,9 @@ function createWeek(label, srcWeek){
         t.sessions[i].topic = ps.topic || '';
         t.sessions[i].from = ps.from || '';
         t.sessions[i].to = ps.to || '';
+        t.sessions[i].subject = ps.subject || '';
+        t.sessions[i].type = ps.type || '';
+        t.sessions[i].detail = ps.detail || '';
       }
     });
   }
@@ -953,6 +1200,9 @@ function sanitizeWeek(p){
         ts.testCount = typeof ps.testCount === 'string' ? ps.testCount : '';
         ts.testPercent = typeof ps.testPercent === 'string' ? ps.testPercent : '';
         ts.done = !!ps.done;
+        ts.subject = typeof ps.subject === 'string' ? ps.subject : '';
+        ts.type = typeof ps.type === 'string' ? ps.type : '';
+        ts.detail = typeof ps.detail === 'string' ? ps.detail : '';
       }
     }
   });
@@ -1006,6 +1256,7 @@ function loadState(){
         state.studentName = typeof p.studentName === 'string' ? p.studentName : '';
         state.lastWeekId = typeof p.lastWeekId === 'string' ? p.lastWeekId : null;
         state.weeks = p.weeks.map(sanitizeWeek).filter(Boolean);
+        state.library = sanitizeLibrary(p.library);
         return;
       }
     } catch(e){}
@@ -1045,6 +1296,7 @@ function openWeek(id){
   renderTabs();
   renderSheet();
   renderWeekSummary();
+  renderSubjectSummary();
 }
 function todayFa(){ return JS_TO_FA_DAY[new Date().getDay()]; }
 
@@ -1120,7 +1372,7 @@ function renderSheet(){
     html += '<div class="s-row1">';
     html += '<span class="badge">' + toFa(idx + 1) + '</span>';
     html += '<button class="done-toggle' + (s.done ? ' done' : '') + '" title="انجام شد">✓</button>';
-    html += '<input class="topic" type="text" placeholder="مبحث (مثلاً ریاضی فصل ۲)" value="' + escapeAttr(s.topic) + '">';
+    html += '<input class="topic" type="text" readonly placeholder="انتخاب سریع درس و نوع خواندن" value="' + escapeAttr(s.topic) + '">';
     html += '</div>';
     html += '<div class="s-row2">';
     html += '<div class="time-group"><span class="label">از</span><input class="time from" type="text" inputmode="numeric" value="' + escapeAttr(enToFa(s.from)) + '"></div>';
@@ -1157,6 +1409,348 @@ function renderWeekSummary(){
   html += '<div class="week-tile"><span class="week-tile-label">تعداد کل تست</span><span class="week-tile-value">' + toFa(stats.tests) + '</span></div>';
   html += '<div class="week-tile"><span class="week-tile-label">میانگین درصد</span><span class="week-tile-value">' + (stats.avgPercent !== null ? toFa(stats.avgPercent) + '٪' : '—') + '</span></div>';
   $('weekSummary').innerHTML = html;
+}
+
+/* ==================== subject library, quick picker, per-subject summary ==================== */
+var picker = { idx:-1, subject:'', type:'', detail:'' };
+var subjExpanded = true;
+
+function composeTopic(subject, type, detail){
+  var tail = [];
+  if (type) tail.push(type);
+  if (detail) tail.push(detail);
+  var tailStr = tail.join(' ');
+  if (subject && tailStr) return subject + ' — ' + tailStr;
+  return subject || tailStr;
+}
+
+function sessionSubject(s){
+  if (s.subject) return s.subject;
+  var t = (s.topic || '').trim();
+  if (!t) return null;
+  var lib = getLibrary();
+  for (var i = 0; i < lib.subjects.length; i++){
+    if (t.indexOf(lib.subjects[i]) === 0) return lib.subjects[i];
+  }
+  return 'سایر';
+}
+
+function subjectSummary(w){
+  var map = {}, order = [];
+  DAY_NAMES.forEach(function(d){
+    var day = w.days[d];
+    if (!day) return;
+    day.sessions.forEach(function(s){
+      if (!sessionHasData(s)) return;
+      var name = sessionSubject(s);
+      if (!name) return;
+      if (!map[name]){
+        map[name] = { name:name, useful:0, tests:0, pSum:0, pCount:0, planned:0, done:0 };
+        order.push(name);
+      }
+      var m = map[name];
+      var u = num(s.usefulTime);
+      if (u !== null) m.useful += u;
+      var tc = num(s.testCount);
+      if (tc !== null) m.tests += tc;
+      var tp = num(s.testPercent);
+      if (tp !== null){ m.pSum += tp; m.pCount++; }
+      if (s.topic){ m.planned++; if (s.done) m.done++; }
+    });
+  });
+  var lib = getLibrary();
+  order.sort(function(a, b){
+    var ia = lib.subjects.indexOf(a), ib = lib.subjects.indexOf(b);
+    if (ia !== -1 && ib !== -1) return ia - ib;
+    if (ia !== -1) return -1;
+    if (ib !== -1) return 1;
+    if (a === 'سایر') return 1;
+    if (b === 'سایر') return -1;
+    return a < b ? -1 : (a > b ? 1 : 0);
+  });
+  return order.map(function(n){ return map[n]; });
+}
+
+function shortDur(total){
+  var h = Math.floor(total / 60), m = Math.round(total % 60);
+  if (h > 0 && m > 0) return toFa(h) + ' ساعت و ' + toFa(m) + ' د';
+  if (h > 0) return toFa(h) + ' ساعت';
+  return toFa(m) + ' د';
+}
+
+function renderSubjectSummary(){
+  var card = $('subjCard');
+  if (!card) return;
+  var w = currentWeek();
+  var rows = w ? subjectSummary(w) : [];
+  if (!rows.length){
+    card.classList.add('hidden');
+    return;
+  }
+  card.classList.remove('hidden');
+  $('subjArrow').textContent = subjExpanded ? '▴' : '▾';
+  var body = $('subjBody');
+  body.classList.toggle('hidden', !subjExpanded);
+  var html = '';
+  rows.forEach(function(m){
+    var avg = m.pCount ? Math.round(m.pSum / m.pCount) : null;
+    html += '<div class="subj-row' + (m.planned > 0 && m.done === m.planned ? ' all' : '') + '">';
+    html += '<div class="subj-line1"><span class="subj-name">' + escapeAttr(m.name) + '</span>';
+    html += '<span class="subj-done">' + (m.planned ? toFa(m.done) + ' از ' + toFa(m.planned) : '—') + '</span></div>';
+    html += '<div class="subj-line2">';
+    html += '<span class="subj-chip">' + shortDur(m.useful) + ' مطالعه مفید</span>';
+    if (m.tests) html += '<span class="subj-chip">' + toFa(m.tests % 1 ? m.tests.toFixed(1) : m.tests) + ' تست</span>';
+    if (avg !== null) html += '<span class="subj-chip">میانگین ' + toFa(avg) + '٪</span>';
+    html += '</div></div>';
+  });
+  body.innerHTML = html;
+}
+
+/* ---------- quick picker sheet ---------- */
+function openPicker(idx){
+  var w = currentWeek();
+  if (!w) return;
+  var s = w.days[activeDay].sessions[idx];
+  if (!s) return;
+  var lib = getLibrary();
+  var subject = s.subject || '';
+  var type = s.type || '';
+  var d = (s.detail || s.topic || '').trim();
+  if (!s.subject && d){
+    /* legacy free text: peel a leading library subject, then a leading type */
+    for (var i = 0; i < lib.subjects.length; i++){
+      if (d.indexOf(lib.subjects[i]) === 0){ subject = lib.subjects[i]; d = d.slice(lib.subjects[i].length); break; }
+    }
+    for (var j = 0; j < lib.types.length; j++){
+      if (d.indexOf(lib.types[j]) === 0){ type = lib.types[j]; d = d.slice(lib.types[j].length); break; }
+    }
+  }
+  d = d.replace(/^[\s—\-·]+/, '').replace(/[\s—\-]+$/, '');
+  picker.idx = idx;
+  picker.subject = subject;
+  picker.type = type;
+  picker.detail = d;
+  $('pickerSearch').value = '';
+  $('pickerDetail').value = d;
+  renderPickerChips('');
+  updatePickerPreview();
+  $('pickerOverlay').classList.remove('hidden');
+}
+
+function closePicker(){
+  $('pickerOverlay').classList.add('hidden');
+  picker.idx = -1;
+}
+
+function renderPickerChips(q){
+  var lib = getLibrary();
+  var ql = (q || '').trim();
+  var subjHtml = '';
+  lib.subjects.forEach(function(name){
+    if (ql && name.indexOf(ql) === -1) return;
+    subjHtml += '<button class="pick-chip' + (name === picker.subject ? ' sel' : '') + '" data-kind="subject" data-name="' + escapeAttr(name) + '">' + escapeAttr(name) + '</button>';
+  });
+  var qlIsType = lib.types.indexOf(ql) !== -1;
+  var qlMatched = lib.subjects.some(function(n){ return n.indexOf(ql) !== -1; });
+  if (ql && lib.subjects.indexOf(ql) === -1 && !qlMatched && !qlIsType){
+    subjHtml += '<button class="pick-chip add" data-kind="add" data-name="' + escapeAttr(ql) + '">+ افزودن «' + escapeAttr(ql) + '» به کتابخانه</button>';
+  }
+  if (!subjHtml) subjHtml = '<div class="pick-empty">درسی پیدا نشد — اسمش را بنویس تا اضافه شود</div>';
+  $('pickerSubjects').innerHTML = subjHtml;
+
+  var typeHtml = '';
+  lib.types.forEach(function(name){
+    if (ql && name.indexOf(ql) === -1) return;
+    typeHtml += '<button class="pick-chip' + (name === picker.type ? ' sel' : '') + '" data-kind="type" data-name="' + escapeAttr(name) + '">' + escapeAttr(name) + '</button>';
+  });
+  if (!typeHtml) typeHtml = '<div class="pick-empty">موردی پیدا نشد</div>';
+  $('pickerTypes').innerHTML = typeHtml;
+}
+
+function updatePickerPreview(){
+  var txt = composeTopic(picker.subject, picker.type, picker.detail);
+  $('pickerPreview').textContent = txt ? ('موضوع: ' + txt) : 'موضوع نهایی همین‌جا ساخته می‌شود…';
+}
+
+function pickerCommit(){
+  if (picker.idx < 0) return;
+  var w = currentWeek();
+  if (!w) return;
+  var s = w.days[activeDay].sessions[picker.idx];
+  s.subject = picker.subject;
+  s.type = picker.type;
+  s.detail = picker.detail;
+  s.topic = composeTopic(s.subject, s.type, s.detail);
+  closePicker();
+  renderSheet();
+  renderTabs();
+  renderSubjectSummary();
+  scheduleSave();
+  if (s.topic) showToast('ثبت شد');
+}
+
+function bindPickerUI(){
+  $('pickerSheet').addEventListener('click', function(e){
+    var chip = e.target.closest('.pick-chip');
+    if (!chip) return;
+    var kind = chip.getAttribute('data-kind');
+    var name = chip.getAttribute('data-name') || '';
+    if (kind === 'subject'){
+      picker.subject = (picker.subject === name) ? '' : name;
+    } else if (kind === 'add'){
+      var lib = getLibrary();
+      if (lib.subjects.indexOf(name) === -1){ lib.subjects.push(name); scheduleSave(); }
+      picker.subject = name;
+    } else if (kind === 'type'){
+      picker.type = (picker.type === name) ? '' : name;
+    }
+    $('pickerSearch').value = '';
+    renderPickerChips('');
+    updatePickerPreview();
+  });
+  $('pickerSearch').addEventListener('input', function(){
+    renderPickerChips(this.value);
+    updatePickerPreview();
+  });
+  $('pickerSearch').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') pickerCommit();
+  });
+  $('pickerDetail').addEventListener('input', function(){
+    picker.detail = this.value;
+    updatePickerPreview();
+  });
+  $('pickerDetail').addEventListener('keydown', function(e){
+    if (e.key === 'Enter') pickerCommit();
+  });
+  $('pickerCommit').addEventListener('click', pickerCommit);
+  $('pickerFreeEdit').addEventListener('click', function(){
+    var idx = picker.idx;
+    closePicker();
+    var input = document.querySelector('.session[data-idx="' + idx + '"] .topic');
+    if (input){ input.readOnly = false; input.focus(); }
+  });
+  $('pickerClose').addEventListener('click', closePicker);
+  $('pickerOverlay').addEventListener('click', function(e){
+    if (e.target === this) closePicker();
+  });
+}
+
+/* ---------- library manager ---------- */
+function renderLib(){
+  var lib = getLibrary();
+  function rows(list, kind){
+    var html = '';
+    list.forEach(function(name){
+      html += '<div class="lib-item" data-kind="' + kind + '" data-name="' + escapeAttr(name) + '">';
+      html += '<span class="lib-name">' + escapeAttr(name) + '</span>';
+      html += '<span class="lib-btns"><button class="lib-edit" title="تغییر نام">✎</button><button class="lib-del" title="حذف">✕</button></span>';
+      html += '</div>';
+    });
+    return html || '<div class="lib-empty">موردی نیست</div>';
+  }
+  $('libSubjects').innerHTML = rows(lib.subjects, 'subject');
+  $('libTypes').innerHTML = rows(lib.types, 'type');
+}
+
+function startLibRename(item){
+  var kind = item.getAttribute('data-kind');
+  var old = item.getAttribute('data-name');
+  var nameEl = item.querySelector('.lib-name');
+  if (!nameEl) return;
+  var input = document.createElement('input');
+  input.type = 'text';
+  input.className = 'lib-rename';
+  input.value = old;
+  nameEl.replaceWith(input);
+  input.focus();
+  input.select();
+  var doneOnce = false;
+  function commit(){
+    if (doneOnce) return;
+    doneOnce = true;
+    var v = input.value.trim();
+    var lib = getLibrary();
+    var arr = kind === 'subject' ? lib.subjects : lib.types;
+    var i = arr.indexOf(old);
+    if (v && v !== old && i !== -1 && arr.indexOf(v) === -1){
+      arr[i] = v;
+      scheduleSave();
+      showToast('نام تغییر کرد');
+    }
+    renderLib();
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); commit(); }
+    else if (e.key === 'Escape'){ doneOnce = true; renderLib(); }
+  });
+}
+
+function libListClick(e, kind){
+  var item = e.target.closest('.lib-item');
+  if (!item) return;
+  var name = item.getAttribute('data-name');
+  if (e.target.classList.contains('lib-del')){
+    askConfirm('«' + name + '» از کتابخانه حذف شود؟ (جلسه‌های قبلی تغییری نمی‌کنند)', function(){
+      var lib = getLibrary();
+      var arr = kind === 'subject' ? lib.subjects : lib.types;
+      var i = arr.indexOf(name);
+      if (i !== -1) arr.splice(i, 1);
+      scheduleSave();
+      renderLib();
+      showToast('حذف شد');
+    });
+  } else if (e.target.classList.contains('lib-edit')){
+    startLibRename(item);
+  }
+}
+
+function bindLibraryUI(){
+  bindPickerUI();
+  $('libraryBtn').addEventListener('click', function(){
+    renderLib();
+    $('libOverlay').classList.remove('hidden');
+  });
+  $('libClose').addEventListener('click', function(){ $('libOverlay').classList.add('hidden'); });
+  $('libOverlay').addEventListener('click', function(e){
+    if (e.target === this) $('libOverlay').classList.add('hidden');
+  });
+  function addFrom(inputId, kind){
+    var input = $(inputId);
+    var v = input.value.trim();
+    if (!v) return;
+    var lib = getLibrary();
+    var arr = kind === 'subject' ? lib.subjects : lib.types;
+    if (arr.indexOf(v) !== -1){ showToast('قبلاً در کتابخانه هست'); return; }
+    arr.push(v);
+    input.value = '';
+    scheduleSave();
+    renderLib();
+    showToast('به کتابخانه اضافه شد');
+  }
+  $('libAddSubject').addEventListener('click', function(){ addFrom('libNewSubject', 'subject'); });
+  $('libNewSubject').addEventListener('keydown', function(e){ if (e.key === 'Enter') addFrom('libNewSubject', 'subject'); });
+  $('libAddType').addEventListener('click', function(){ addFrom('libNewType', 'type'); });
+  $('libNewType').addEventListener('keydown', function(e){ if (e.key === 'Enter') addFrom('libNewType', 'type'); });
+  $('libReset').addEventListener('click', function(){
+    askConfirm('کتابخانه به لیست پیش‌فرض برگردد؟', function(){
+      state.library = defaultLibrary();
+      scheduleSave();
+      renderLib();
+      showToast('پیش‌فرض‌ها بازگشتند');
+    });
+  });
+  $('libSubjects').addEventListener('click', function(e){ libListClick(e, 'subject'); });
+  $('libTypes').addEventListener('click', function(e){ libListClick(e, 'type'); });
+  $('subjToggle').addEventListener('click', function(){
+    subjExpanded = !subjExpanded;
+    renderSubjectSummary();
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key !== 'Escape') return;
+    if (!$('pickerOverlay').classList.contains('hidden')) closePicker();
+    else if (!$('libOverlay').classList.contains('hidden')) $('libOverlay').classList.add('hidden');
+  });
 }
 /* ==================== stats helpers ==================== */
 function minutesToLabel(total){
@@ -1329,6 +1923,23 @@ function buildWeeklyHTML(){
   DAY_NAMES.forEach(function(d){ html += '<td>' + minutesToLabel(sumSessionMinutes(w.days[d])) + '</td>'; });
   html += '</tr>';
   html += '</tbody></table>';
+
+  /* per-subject summary table */
+  var subjRows = subjectSummary(w);
+  if (subjRows.length){
+    html += '<div class="ex-sec-title">جمع‌بندی دروس</div>';
+    html += '<table class="export-table subj-table" dir="rtl"><thead><tr><th>درس</th><th>زمان مفید</th><th>تست</th><th>میانگین درصد</th><th>انجام‌شده</th></tr></thead><tbody>';
+    subjRows.forEach(function(m){
+      html += '<tr><th>' + escapeAttr(m.name) + '</th>';
+      html += '<td>' + minutesToLabel(m.useful) + '</td>';
+      html += '<td>' + (m.tests ? toFa(m.tests % 1 ? m.tests.toFixed(1) : m.tests) : '—') + '</td>';
+      html += '<td>' + (m.pCount ? toFa(Math.round(m.pSum / m.pCount)) + '٪' : '—') + '</td>';
+      html += '<td>' + (m.planned ? toFa(m.done) + ' از ' + toFa(m.planned) : '—') + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+  }
+
   var st = weekStats(w);
   html += '<div class="ex-notes">';
   html += '<div class="ex-note"><b>جمع کل هفته:</b> ' + minutesToLabel(st.useful) + ' مطالعه مفید · ' + toFa(st.tests) + ' تست';
@@ -1446,6 +2057,7 @@ function handleRestoreFile(file){
       askConfirm('همه هفته‌های فعلی با این فایل جایگزین می‌شوند. ادامه بدهم؟', function(){
         state.studentName = typeof incoming.studentName === 'string' ? incoming.studentName : state.studentName;
         state.weeks = incoming.weeks.map(sanitizeWeek).filter(Boolean);
+        if (incoming.library) state.library = sanitizeLibrary(incoming.library);
         state.lastWeekId = null;
         saveState();
         renderWeeksList();
@@ -1547,12 +2159,12 @@ function bindEvents(){
       var idx = parseInt(sessionEl.getAttribute('data-idx'), 10);
       var s = day.sessions[idx];
       var wasData = sessionClass(s);
-      if (t.classList.contains('topic')) s.topic = t.value;
+      if (t.classList.contains('topic')){ s.topic = t.value; renderSubjectSummary(); }
       else if (t.classList.contains('from')){ s.from = t.value; updateComputedTotal(day); }
       else if (t.classList.contains('to')){ s.to = t.value; updateComputedTotal(day); }
-      else if (t.classList.contains('p-useful')){ s.usefulTime = t.value; updateComputedUseful(day); renderWeekSummary(); }
-      else if (t.classList.contains('p-testcount')){ s.testCount = t.value; renderWeekSummary(); }
-      else if (t.classList.contains('p-testpercent')){ s.testPercent = t.value; renderWeekSummary(); }
+      else if (t.classList.contains('p-useful')){ s.usefulTime = t.value; updateComputedUseful(day); renderWeekSummary(); renderSubjectSummary(); }
+      else if (t.classList.contains('p-testcount')){ s.testCount = t.value; renderWeekSummary(); renderSubjectSummary(); }
+      else if (t.classList.contains('p-testpercent')){ s.testPercent = t.value; renderWeekSummary(); renderSubjectSummary(); }
       var nowData = sessionClass(s);
       if (wasData !== nowData){
         sessionEl.classList.remove('empty', 'missed', 'done');
@@ -1566,6 +2178,12 @@ function bindEvents(){
     else if (t.classList.contains('day-note')){ day.note = t.value; scheduleSave(); }
   });
   $('sheetArea').addEventListener('click', function(e){
+    var topicEl = e.target.closest('.topic');
+    if (topicEl && topicEl.readOnly){
+      var se = topicEl.closest('.session');
+      if (se) openPicker(parseInt(se.getAttribute('data-idx'), 10));
+      return;
+    }
     var btn = e.target.closest('.done-toggle');
     if (!btn) return;
     var sessionEl = btn.closest('.session');
@@ -1577,6 +2195,7 @@ function bindEvents(){
     sessionEl.classList.remove('empty', 'missed', 'done');
     sessionEl.classList.add(sessionClass(s).trim());
     renderTabs();
+    renderSubjectSummary();
     scheduleSave();
   });
 
@@ -1591,6 +2210,7 @@ function bindEvents(){
       saveState();
       renderSheet();
       renderWeekSummary();
+      renderSubjectSummary();
       showToast('اطلاعات هفته پاک شد');
     });
   });
@@ -1605,6 +2225,9 @@ function bindEvents(){
     $('confirmPanel').classList.add('hidden');
     confirmCb = null;
   });
+
+  /* subject picker + library manager */
+  bindLibraryUI();
 }
 
 function updateComputedUseful(day){
