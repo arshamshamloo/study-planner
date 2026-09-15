@@ -850,6 +850,109 @@ input.topic{cursor:pointer;}
 }
 table.export-table.subj-table{border-radius:12px;}
 table.export-table.subj-table tbody th{text-align:right;padding-inline-start:12px;}
+
+/* ============ desktop layout (≥900px): phone layout untouched ============ */
+@media (min-width: 900px){
+  body{padding-bottom:0;}
+  #app{max-width:1160px;}
+
+  /* --- weeks list screen: card grid --- */
+  .weeks-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+    gap:14px;
+    padding:20px 24px 10px;
+    align-content:start;
+  }
+  .weeks-list .week-card{margin-bottom:0;}
+  .weeks-list .empty-hint{grid-column:1 / -1;}
+
+  /* --- week screen: two-column sessions --- */
+  .week-summary{
+    max-width:1160px;
+    margin:0 auto;
+    padding:16px 24px 0;
+    gap:12px;
+  }
+  .week-tile{padding:12px 10px;}
+  nav.daytabs{
+    max-width:1160px;
+    margin:0 auto;
+    padding:14px 24px 6px;
+  }
+  main.sheet{
+    max-width:760px;
+    margin:0 auto;
+    padding:6px 0 24px;
+  }
+  main.sheet .session{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    column-gap:18px;
+    align-items:start;
+  }
+  main.sheet .session .s-row1{grid-column:1 / -1;}
+  main.sheet .session .s-row2{grid-column:1; margin-top:10px;}
+  main.sheet .session .perf-block{grid-column:2; grid-row:2; margin-top:10px; border-top:none; padding-top:0;}
+  main.sheet .session .time-group{flex-direction:column; align-items:stretch; gap:3px;}
+  main.sheet .session .time-group .label{order:-1; text-align:center;}
+  main.sheet .session .perf-head{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+  main.sheet .session .perf-row{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+  main.sheet .session .perf-head span{text-align:center;}
+
+  /* per-subject summary: in-flow centered card between 900–1199px */
+  .subj-card{
+    position:static;
+    max-width:760px;
+    margin:0 auto 24px;
+  }
+
+  /* --- wide desktop (≥1200px): sidebar beside the sheet --- */
+  @media (min-width: 1200px){
+    #screenWeek{
+      display:grid;
+      grid-template-columns:minmax(0, 760px) minmax(300px, 1fr);
+      column-gap:24px;
+      padding:0 24px;
+      align-items:start;
+    }
+    header.topbar,
+    .week-summary,
+    nav.daytabs{ grid-column:1 / -1; max-width:none; margin:0; }
+    main.sheet{ max-width:none; margin:0; padding:6px 0 40px; }
+    .subj-card{
+      position:sticky;
+      top:16px;
+      margin:0;
+      max-height:calc(100vh - 32px);
+      display:flex;
+      flex-direction:column;
+    }
+    .subj-card .subj-body{overflow-y:auto;}
+  }
+
+  /* floating centered action bar */
+  .actionbar{
+    bottom:18px;
+    left:50%;
+    right:auto;
+    transform:translateX(-50%);
+    background:var(--parchment);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:10px 12px;
+    gap:12px;
+    box-shadow:0 10px 30px rgba(11,46,44,0.18);
+    max-width:760px;
+    width:calc(100% - 48px);
+  }
+  .actionbar .btn-ghost{color:var(--text-muted); border-color:var(--line);}
+  .actionbar .btn-ghost:hover{color:var(--weak); border-color:var(--miss-line); background:var(--miss-soft);}
+
+  /* header: calmer on desktop */
+  header.topbar h1{font-size:26px;}
+  header.topbar p.sub{font-size:14.5px;}
+}
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">

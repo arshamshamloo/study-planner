@@ -1,5 +1,5 @@
 /* cache-first service worker for the study planner */
-var CACHE = 'study-planner-v3';
+var CACHE = 'study-planner-v4';
 var ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', function(e){
   e.waitUntil(
