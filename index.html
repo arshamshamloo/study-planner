@@ -2125,22 +2125,6 @@ function buildWeeklyHTML(){
   html += '</tr>';
   html += '</tbody></table>';
 
-  /* per-subject summary table */
-  var subjRows = subjectSummary(w);
-  if (subjRows.length){
-    html += '<div class="ex-sec-title">جمع‌بندی دروس</div>';
-    html += '<table class="export-table subj-table" dir="rtl"><thead><tr><th>درس</th><th>زمان مفید</th><th>تست</th><th>میانگین درصد</th><th>انجام‌شده</th></tr></thead><tbody>';
-    subjRows.forEach(function(m){
-      html += '<tr><th>' + escapeAttr(m.name) + '</th>';
-      html += '<td>' + minutesToLabel(m.useful) + '</td>';
-      html += '<td>' + (m.tests ? toFa(m.tests % 1 ? m.tests.toFixed(1) : m.tests) : '—') + '</td>';
-      html += '<td>' + (m.pCount ? toFa(Math.round(m.pSum / m.pCount)) + '٪' : '—') + '</td>';
-      html += '<td>' + (m.planned ? toFa(m.done) + ' از ' + toFa(m.planned) : '—') + '</td>';
-      html += '</tr>';
-    });
-    html += '</tbody></table>';
-  }
-
   var st = weekStats(w);
   html += '<div class="ex-notes">';
   html += '<div class="ex-note"><b>جمع کل هفته:</b> ' + minutesToLabel(st.useful) + ' مطالعه مفید · ' + toFa(st.tests) + ' تست';
