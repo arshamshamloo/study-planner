@@ -299,6 +299,8 @@ main.sheet{
   color:#fff;
 }
 .session.missed .done-toggle{border-color:var(--miss-line); background:var(--miss-soft);}
+.session.future{opacity:.8; border-inline-start-color:var(--line);}
+.session.future .badge{background:var(--parchment-2); color:var(--text-muted);}
 input.topic{
   flex:1;
   min-width:0;
@@ -656,6 +658,7 @@ table.export-table td .ex-topic{display:block; font-weight:600; color:var(--text
 table.export-table td .ex-time{display:block; color:var(--text-muted); font-size:13px; margin-top:2px;}
 table.export-table td .ex-done{color:var(--sage-2); font-weight:700;}
 table.export-table td .ex-undone{color:var(--miss); font-weight:700;}
+table.export-table td .ex-wait, table.export-table.d-table td .ex-wait{display:inline-block; background:var(--parchment-2); color:var(--text-muted); border:1px solid var(--line); border-radius:6px; padding:1px 8px; font-size:12.5px; font-weight:600;}
 /* cells of studied / not-studied sessions */
 table.export-table td.cell-done{background:#ECFDF5;}
 table.export-table td.cell-missed{background:#FEF2F2;}
@@ -1107,6 +1110,95 @@ function suggestWeekLabel(){
   return toFa(js.jd) + ' ' + J_MONTHS[js.jm - 1] + ' تا ' + toFa(je.jd) + ' ' + J_MONTHS[je.jm - 1];
 }
 
+/* ---------- future-day detection: which days of this week haven't arrived yet ---------- */
+var jalaliYearFmt = null;
+try { jalaliYearFmt = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', { year: 'numeric' }); } catch(e){ jalaliYearFmt = null; }
+function toJalaliYMD(date){
+  var j = toJalali(date);
+  if (!j) return null;
+  var y = 0;
+  try {
+    var o = {};
+    jalaliYearFmt.formatToParts(date).forEach(function(p){ o[p.type] = p.value; });
+    y = parseInt(o.year, 10) || 0;
+  } catch(e){}
+  return { jy: y, jm: j.jm, jd: j.jd };
+}
+/* all Saturdays whose week could contain a day with jalali day-number n, within ±10 real days of today */
+function saturdaysForDayNumber(n){
+  var today = new Date(); today.setHours(0,0,0,0);
+  var out = [];
+  for (var k = -10; k <= 10; k++){
+    var dt = new Date(today);
+    dt.setDate(dt.getDate() + k);
+    var j = toJalaliYMD(dt);
+    if (j && j.jd === n){
+      var sat = saturdayOf(dt).getTime();
+      if (out.indexOf(sat) === -1) out.push(sat);
+    }
+  }
+  return out;
+}
+function pickNearestSaturday(cands){
+  if (!cands.length) return null;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var curSat = saturdayOf(today).getTime();
+  cands.sort(function(a, b){
+    var ca = a + ((a <= today.getTime() && today.getTime() <= a + 6 * 86400000) ? -0.5 : 0);
+    var cb = b + ((b <= today.getTime() && today.getTime() <= b + 6 * 86400000) ? -0.5 : 0);
+    var da = Math.abs(ca - curSat), db = Math.abs(cb - curSat);
+    if (da !== db) return da - db;
+    return b - a; /* tie → later week */
+  });
+  return new Date(cands[0]);
+}
+function parseLabelToSaturday(label){
+  var s = faToEn(String(label || '')).replace(/\u200c/g, ' ').trim();
+  if (!s) return null;
+  var nums = (s.match(/\d{1,2}/g) || [])
+    .map(function(x){ return parseInt(x, 10); })
+    .filter(function(n){ return n >= 1 && n <= 31; });
+  if (!nums.length) return null;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var curSat = saturdayOf(today).getTime();
+  var cands = [];
+  if (nums.length >= 2){
+    var d1 = nums[0], d2 = nums[1];
+    if (d1 > d2){ /* cross-month range like ۲۸ اسفند تا ۴ فروردین: anchor on the first */
+      var t = d1; /* no month info — treat as single anchor */
+    }
+    var s1 = saturdaysForDayNumber(d1), s2 = saturdaysForDayNumber(d2);
+    /* a real week contains both numbers → strongest signal */
+    s1.forEach(function(a){
+      if (s2.indexOf(a) !== -1) cands.push(a);
+    });
+    if (!cands.length){
+      /* non-aligned range (spans >1 week or month-crossing): the week we want is the one
+         nearest the current week that touches either number */
+      cands = s1.concat(s2);
+    }
+  } else {
+    cands = saturdaysForDayNumber(nums[0]);
+  }
+  return pickNearestSaturday(cands);
+}
+function isFutureDay(week, dayName){
+  if (!week || !dayName) return false;
+  var start = parseLabelToSaturday(week.label);
+  if (!start && week.createdAt){
+    var c = saturdayOf(new Date(week.createdAt));
+    var now = new Date(); now.setHours(0,0,0,0);
+    var days = Math.round((now - c) / 86400000);
+    if (days >= 0 && days <= 42) start = c;
+  }
+  if (!start) return false;
+  var di = DAY_NAMES.indexOf(dayName);
+  var that = new Date(start);
+  that.setDate(that.getDate() + di);
+  var now2 = new Date(); now2.setHours(0,0,0,0);
+  return that - now2 > 0;
+}
+
 /* ==================== state model ==================== */
 function emptyDay(){
   var sessions = [];
@@ -1332,16 +1424,19 @@ function renderWeeksList(){
 function sessionHasData(s){
   return !!(s.topic || s.from || s.to || s.usefulTime || s.testCount || s.testPercent);
 }
-function dayCounts(day){
+function dayCounts(day, dayName, week){
   var planned = 0, done = 0;
+  var future = dayName && week ? isFutureDay(week, dayName) : false;
   day.sessions.forEach(function(s){
-    if (s.topic){ planned++; if (s.done) done++; }
+    if (s.topic && !future){ planned++; if (s.done) done++; }
   });
   return { planned: planned, done: done };
 }
-function sessionClass(s){
+function sessionClass(s, dayName, week){
   if (!sessionHasData(s)) return ' empty';
-  return s.done ? ' done' : ' missed';
+  if (s.done) return ' done';
+  if (dayName && week && isFutureDay(week, dayName)) return ' future';
+  return ' missed';
 }
 function renderTabs(){
   var nav = $('dayTabs');
@@ -1349,7 +1444,7 @@ function renderTabs(){
   var w = currentWeek();
   var html = '';
   DAY_NAMES.forEach(function(d){
-    var c = w ? dayCounts(w.days[d]) : { planned: 0, done: 0 };
+    var c = w ? dayCounts(w.days[d], d, w) : { planned: 0, done: 0 };
     var countHtml = '';
     if (c.planned > 0){
       var all = c.done === c.planned;
@@ -1368,7 +1463,7 @@ function renderSheet(){
   var day = w.days[activeDay];
   var html = '';
   day.sessions.forEach(function(s, idx){
-    html += '<div class="session' + sessionClass(s) + '" data-idx="' + idx + '">';
+    html += '<div class="session' + sessionClass(s, activeDay, w) + '" data-idx="' + idx + '">';
     html += '<div class="s-row1">';
     html += '<span class="badge">' + toFa(idx + 1) + '</span>';
     html += '<button class="done-toggle' + (s.done ? ' done' : '') + '" title="انجام شد">✓</button>';
@@ -1455,7 +1550,7 @@ function subjectSummary(w){
       if (tc !== null) m.tests += tc;
       var tp = num(s.testPercent);
       if (tp !== null){ m.pSum += tp; m.pCount++; }
-      if (s.topic){ m.planned++; if (s.done) m.done++; }
+      if (s.topic && !isFutureDay(w, d)){ m.planned++; if (s.done) m.done++; }
     });
   });
   var lib = getLibrary();
@@ -1845,19 +1940,21 @@ function buildDailyHTML(){
   var day = w.days[activeDay];
   var html = metaHeaderHtml('گزارش روزانه — ' + activeDay);
   html += '<table class="export-table d-table" dir="rtl"><thead><tr><th style="width:34px"></th><th>مبحث</th><th style="width:90px">ساعت</th><th style="width:70px">زمان مفید</th><th style="width:60px">تست</th><th style="width:60px">درصد</th><th style="width:56px">انجام</th></tr></thead><tbody>';
+  var dayIsFuture = isFutureDay(w, activeDay);
   day.sessions.forEach(function(s, i){
     if (!sessionHasData(s)) return;
-    html += '<tr class="' + (s.done ? 'row-done' : 'row-missed') + '"><th>' + toFa(i + 1) + '</th>';
+    html += '<tr class="' + (s.done ? 'row-done' : (dayIsFuture ? '' : 'row-missed')) + '"><th>' + toFa(i + 1) + '</th>';
     html += '<td>' + (s.topic ? escapeAttr(s.topic) : '—') + '</td>';
     html += '<td class="c">' + ((s.from || s.to) ? escapeAttr(enToFa(s.from)) + '–' + escapeAttr(enToFa(s.to)) : '—') + '</td>';
     html += '<td class="c">' + (s.usefulTime ? escapeAttr(enToFa(s.usefulTime)) + ' د' : '—') + '</td>';
     html += '<td class="c">' + (s.testCount ? escapeAttr(enToFa(s.testCount)) : '—') + '</td>';
     html += '<td class="c">' + (s.testPercent ? escapeAttr(enToFa(s.testPercent)) + '٪' : '—') + '</td>';
     if (s.done) html += '<td class="c"><span class="ex-done">✓ انجام شد</span></td>';
+    else if (dayIsFuture) html += '<td class="c"><span class="ex-wait">در انتظار</span></td>';
     else html += '<td class="c"><span class="ex-missed">✗ خوانده نشد</span></td>';
     html += '</tr>';
   });
-  var dc = dayCounts(day);
+  var dc = dayCounts(day, activeDay, w);
   html += '<tr class="summary-row"><th colspan="3">انجام‌شده</th><td colspan="4">' + toFa(dc.done) + ' از ' + toFa(dc.planned) + (dc.planned > 0 && dc.done === dc.planned ? ' ✓' : '') + '</td></tr>';
   html += '<tr class="summary-row"><th colspan="3">مطالعه مفید روز</th><td colspan="4">' + minutesToLabel(sumUsefulMinutes(day)) + '</td></tr>';
   html += '<tr class="summary-row"><th colspan="3">خواب و تفریح</th><td colspan="4">' + (day.rest ? escapeAttr(day.rest) : '—') + '</td></tr>';
@@ -1874,7 +1971,7 @@ function buildWeeklyHTML(){
   /* stats bar — the counselor's one-glance summary */
   var ws = weekStats(w);
   var planned = 0, doneN = 0;
-  DAY_NAMES.forEach(function(d){ var dc = dayCounts(w.days[d]); planned += dc.planned; doneN += dc.done; });
+  DAY_NAMES.forEach(function(d){ var dc = dayCounts(w.days[d], d, w); planned += dc.planned; doneN += dc.done; });
   html += '<div class="ex-stats">';
   html += '<div class="ex-stat"><span class="st-label">مطالعه مفید هفته</span><span class="st-value">' + minutesToLabel(ws.useful) + '</span></div>';
   html += '<div class="ex-stat"><span class="st-label">مجموع تست</span><span class="st-value">' + toFa(ws.tests % 1 ? ws.tests.toFixed(1) : ws.tests) + '</span></div>';
@@ -1900,15 +1997,16 @@ function buildWeeklyHTML(){
       if (s.usefulTime) perf.push(escapeAttr(enToFa(s.usefulTime)) + ' د');
       if (s.testCount) perf.push(escapeAttr(enToFa(s.testCount)) + ' تست');
       if (s.testPercent) perf.push(escapeAttr(enToFa(s.testPercent)) + '٪');
-      var doneMark = s.topic ? (s.done ? ' <span class="ex-done">✓</span>' : ' <span class="ex-undone">✗</span>') : '';
-      var cellCls = s.topic ? (s.done ? ' class="cell-done"' : ' class="cell-missed"') : '';
+      var fut = isFutureDay(w, DAY_NAMES[d]);
+      var doneMark = s.topic ? (s.done ? ' <span class="ex-done">✓</span>' : (fut ? '' : ' <span class="ex-undone">✗</span>')) : '';
+      var cellCls = s.topic ? (s.done ? ' class="cell-done"' : (fut ? '' : ' class="cell-missed"')) : '';
       html += '<td' + cellCls + '><span class="ex-topic">' + topic + doneMark + '</span><span class="ex-time">' + timeLine + '</span><span class="ex-time">' + perf.join(' · ') + '</span></td>';
     }
     html += '</tr>';
   }
   html += '<tr class="summary-row"><th>انجام‌شده</th>';
   DAY_NAMES.forEach(function(d){
-    var dc = dayCounts(w.days[d]);
+    var dc = dayCounts(w.days[d], d, w);
     if (dc.planned === 0) html += '<td>—</td>';
     else html += '<td>' + toFa(dc.done) + ' از ' + toFa(dc.planned) + (dc.done === dc.planned ? ' ✓' : '') + '</td>';
   });
@@ -2158,14 +2256,14 @@ function bindEvents(){
     if (sessionEl){
       var idx = parseInt(sessionEl.getAttribute('data-idx'), 10);
       var s = day.sessions[idx];
-      var wasData = sessionClass(s);
+      var wasData = sessionClass(s, activeDay, w);
       if (t.classList.contains('topic')){ s.topic = t.value; renderSubjectSummary(); }
       else if (t.classList.contains('from')){ s.from = t.value; updateComputedTotal(day); }
       else if (t.classList.contains('to')){ s.to = t.value; updateComputedTotal(day); }
       else if (t.classList.contains('p-useful')){ s.usefulTime = t.value; updateComputedUseful(day); renderWeekSummary(); renderSubjectSummary(); }
       else if (t.classList.contains('p-testcount')){ s.testCount = t.value; renderWeekSummary(); renderSubjectSummary(); }
       else if (t.classList.contains('p-testpercent')){ s.testPercent = t.value; renderWeekSummary(); renderSubjectSummary(); }
-      var nowData = sessionClass(s);
+      var nowData = sessionClass(s, activeDay, w);
       if (wasData !== nowData){
         sessionEl.classList.remove('empty', 'missed', 'done');
         sessionEl.classList.add(nowData.trim());
@@ -2193,7 +2291,7 @@ function bindEvents(){
     s.done = !s.done;
     btn.classList.toggle('done', s.done);
     sessionEl.classList.remove('empty', 'missed', 'done');
-    sessionEl.classList.add(sessionClass(s).trim());
+    sessionEl.classList.add(sessionClass(s, activeDay, w).trim());
     renderTabs();
     renderSubjectSummary();
     scheduleSave();
