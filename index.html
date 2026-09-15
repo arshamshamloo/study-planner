@@ -1227,79 +1227,59 @@ function toJalaliYMD(date){
   } catch(e){}
   return { jy: y, jm: j.jm, jd: j.jd };
 }
-/* all Saturdays whose week could contain a day with jalali day-number n, within ±10 real days of today */
-function saturdaysForDayNumber(n){
-  var today = new Date(); today.setHours(0,0,0,0);
-  var out = [];
-  for (var k = -10; k <= 10; k++){
-    var dt = new Date(today);
-    dt.setDate(dt.getDate() + k);
-    var j = toJalaliYMD(dt);
-    if (j && j.jd === n){
-      var sat = saturdayOf(dt).getTime();
-      if (out.indexOf(sat) === -1) out.push(sat);
-    }
-  }
-  return out;
+/* the week's first day = the label's first date (e.g. «۱۹ تا ۲۵ شهریور» → پنجشنبه ۱۹).
+   scan ±45 real days for a date whose jalali day-number matches (month too, if named),
+   nearest to the week's creation date; fallback = creation date. */
+function labelMonthIndex(label){
+  var s = String(label || '');
+  for (var i = 0; i < J_MONTHS.length; i++){ if (s.indexOf(J_MONTHS[i]) !== -1) return i + 1; }
+  return null;
 }
-function pickNearestSaturday(cands){
-  if (!cands.length) return null;
-  var today = new Date(); today.setHours(0,0,0,0);
-  var curSat = saturdayOf(today).getTime();
-  cands.sort(function(a, b){
-    var ca = a + ((a <= today.getTime() && today.getTime() <= a + 6 * 86400000) ? -0.5 : 0);
-    var cb = b + ((b <= today.getTime() && today.getTime() <= b + 6 * 86400000) ? -0.5 : 0);
-    var da = Math.abs(ca - curSat), db = Math.abs(cb - curSat);
-    if (da !== db) return da - db;
-    return b - a; /* tie → later week */
-  });
-  return new Date(cands[0]);
-}
-function parseLabelToSaturday(label){
-  var s = faToEn(String(label || '')).replace(/\u200c/g, ' ').trim();
-  if (!s) return null;
-  var nums = (s.match(/\d{1,2}/g) || [])
-    .map(function(x){ return parseInt(x, 10); })
-    .filter(function(n){ return n >= 1 && n <= 31; });
-  if (!nums.length) return null;
-  var today = new Date(); today.setHours(0,0,0,0);
-  var curSat = saturdayOf(today).getTime();
-  var cands = [];
-  if (nums.length >= 2){
-    var d1 = nums[0], d2 = nums[1];
-    if (d1 > d2){ /* cross-month range like ۲۸ اسفند تا ۴ فروردین: anchor on the first */
-      var t = d1; /* no month info — treat as single anchor */
+function weekStartDate(week){
+  if (!week) return null;
+  var anchor = week.createdAt ? new Date(week.createdAt) : new Date();
+  anchor.setHours(0, 0, 0, 0);
+  var s = faToEn(String(week.label || '')).replace(/\u200c/g, ' ').trim();
+  var m = s.match(/\d{1,2}/);
+  var n = m ? parseInt(m[0], 10) : null;
+  var mi = labelMonthIndex(week.label);
+  if (n !== null && n >= 1 && n <= 31){
+    var best = null, bestDiff = Infinity;
+    for (var k = -45; k <= 45; k++){
+      var dt = new Date(anchor);
+      dt.setDate(dt.getDate() + k);
+      var j = toJalaliYMD(dt);
+      if (!j || j.jd !== n) continue;
+      if (mi && j.jm !== mi) continue;
+      var diff = Math.abs(dt - anchor);
+      if (diff < bestDiff){ bestDiff = diff; best = dt; }
     }
-    var s1 = saturdaysForDayNumber(d1), s2 = saturdaysForDayNumber(d2);
-    /* a real week contains both numbers → strongest signal */
-    s1.forEach(function(a){
-      if (s2.indexOf(a) !== -1) cands.push(a);
-    });
-    if (!cands.length){
-      /* non-aligned range (spans >1 week or month-crossing): the week we want is the one
-         nearest the current week that touches either number */
-      cands = s1.concat(s2);
-    }
-  } else {
-    cands = saturdaysForDayNumber(nums[0]);
+    if (best) return best;
   }
-  return pickNearestSaturday(cands);
+  return anchor;
+}
+/* day offset within the week: 0 for the week's first weekday, +1..6 after */
+function dayOffsetInWeek(week, dayName){
+  var start = weekStartDate(week);
+  var di = DAY_NAMES.indexOf(dayName);
+  if (di === -1) return 0;
+  if (!start) return di;
+  var startIdx = DAY_NAMES.indexOf(JS_TO_FA_DAY[start.getDay()]);
+  return (di - startIdx + 7) % 7;
+}
+function dayDateInWeek(week, dayName){
+  var start = weekStartDate(week);
+  if (!start) return null;
+  var dt = new Date(start);
+  dt.setDate(dt.getDate() + dayOffsetInWeek(week, dayName));
+  return dt;
 }
 function isFutureDay(week, dayName){
   if (!week || !dayName) return false;
-  var start = parseLabelToSaturday(week.label);
-  if (!start && week.createdAt){
-    var c = saturdayOf(new Date(week.createdAt));
-    var now = new Date(); now.setHours(0,0,0,0);
-    var days = Math.round((now - c) / 86400000);
-    if (days >= 0 && days <= 42) start = c;
-  }
-  if (!start) return false;
-  var di = DAY_NAMES.indexOf(dayName);
-  var that = new Date(start);
-  that.setDate(that.getDate() + di);
-  var now2 = new Date(); now2.setHours(0,0,0,0);
-  return that - now2 > 0;
+  var that = dayDateInWeek(week, dayName);
+  if (!that) return false;
+  var now = new Date(); now.setHours(0, 0, 0, 0);
+  return that - now > 0;
 }
 
 /* ==================== state model ==================== */
