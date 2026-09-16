@@ -1135,17 +1135,21 @@ var J_MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مر�
 
 /* ==================== subject library ==================== */
 var LIB_SUBJECT_PRESETS = ['ریاضی','فیزیک','شیمی','زیست','ادبیات','عربی','دینی','زبان انگلیسی'];
-var LIB_TYPE_PRESETS = ['تست','فیلم','استادی','تحلیل آزمون','مرور','جزوه','کتاب درسی'];
+var LIB_TYPE_PRESETS = ['تست','فیلم','STUDY','تحلیل آزمون','مرور','جزوه','کتاب درسی'];
 function defaultLibrary(){
   return { subjects: LIB_SUBJECT_PRESETS.slice(), types: LIB_TYPE_PRESETS.slice() };
 }
 function sanitizeLibrary(lib){
   var d = defaultLibrary();
+  var RENAMES = { 'استادی': 'STUDY' };
   function cleanArr(arr){
     if (!Array.isArray(arr)) return null;
     var out = [];
     arr.forEach(function(x){
-      if (typeof x === 'string' && x.trim() && out.indexOf(x.trim()) === -1) out.push(x.trim());
+      if (typeof x === 'string' && x.trim()){
+        var v = RENAMES[x.trim()] || x.trim();
+        if (out.indexOf(v) === -1) out.push(v);
+      }
     });
     return out.length ? out : null;
   }
