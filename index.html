@@ -1459,6 +1459,15 @@ button:focus-visible, [role="tab"]:focus-visible{outline:2px solid var(--amber-2
   #weekBoard .wg-head .wg-label{background:transparent; min-height:0; padding:0; box-shadow:none;}
 }
 
+/* ===== v2.5: pages, chapter and section in the quick editor and the boxes ===== */
+#cellOverlay .picker-sheet{max-height:88vh; overflow:auto;}
+.detail-row{display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px; margin-top:6px;}
+.detail-row .dcol{min-width:0;}
+.detail-row .tl{font-size:12px; color:var(--text-muted); font-weight:700; margin:0 2px 6px;}
+.detail-row .picker-detail{width:100%; box-sizing:border-box; min-width:0;}
+.wgc .wg-cell{flex-wrap:wrap;}
+.wgc-extra{flex-basis:100%; font-size:11px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -1702,6 +1711,12 @@ button:focus-visible, [role="tab"]:focus-visible{outline:2px solid var(--amber-2
     <div class="chip-grid" id="cellTypes"></div>
     <div class="picker-sec">یا متن آزاد</div>
     <input class="picker-detail" id="cellFree" type="text" placeholder="اگر درس و نوع نمی‌خواهی، اینجا بنویس">
+    <div class="picker-sec">جزئیات</div>
+    <div class="detail-row">
+      <div class="dcol"><div class="tl">صفحه</div><input class="picker-detail" id="cellDetail" type="text" placeholder="مثلاً ۴۵ تا ۶۰"></div>
+      <div class="dcol"><div class="tl">فصل</div><input class="picker-detail" id="cellChapter" type="text" placeholder="مثلاً ۲"></div>
+      <div class="dcol"><div class="tl">مبحث</div><input class="picker-detail" id="cellMabhas" type="text" placeholder="مثلاً تابع"></div>
+    </div>
     <div class="picker-sec">ساعت</div>
     <div class="time-steps">
       <div class="tcol"><div class="tl">از</div><div class="tstep"><button type="button" class="sbtn" data-cell-time="cellFrom" data-d="-15" aria-label="از: ۱۵ دقیقه کمتر"><svg class="i"><use href="#i-minus"/></svg></button><input class="tval" id="cellFrom" type="text" inputmode="numeric" placeholder="۰۸:۰۰" aria-label="ساعت از"><button type="button" class="sbtn" data-cell-time="cellFrom" data-d="15" aria-label="از: ۱۵ دقیقه بیشتر"><svg class="i"><use href="#i-plus"/></svg></button></div></div>
@@ -1826,7 +1841,7 @@ var SESSION_COUNT = 8;
 var STORAGE_KEY = 'study-planner-v3';
 var UNREADABLE_KEY = 'study-planner-v3-unreadable';
 var SCHEMA = 2;
-var APP_VERSION = '2.4.0';
+var APP_VERSION = '2.5.0';
 var BACKUP_REMINDER_DAYS = 7;
 
 /* ==================== subject library ==================== */
@@ -2649,7 +2664,7 @@ function renderWeekBoard(){
           total += sessionPlanMinutes(s);
           list += '<button type="button" class="wg-cell ' + sessionClass(s, d, w).trim() + '" data-day="' + escapeAttr(d) + '" data-idx="' + idx + '">' +
             '<span class="wgc-time">' + ((s.from || s.to) ? escapeAttr(enToFa(s.from)) + ' – ' + escapeAttr(enToFa(s.to)) : '') + '</span>' +
-            '<span class="wg-topic">' + escapeAttr(s.topic || '—') + '</span></button>';
+            '<span class="wg-topic">' + escapeAttr(sessionTitle(s)) + '</span>' + (sessionExtrasText(s) ? '<span class="wgc-extra">' + escapeAttr(sessionExtrasText(s)) + '</span>' : '') + '</button>';
         } else if (firstEmpty < 0) firstEmpty = idx;
       }
       if (firstEmpty >= 0) list += '<button type="button" class="wg-cell wgc-add" data-day="' + escapeAttr(d) + '" data-idx="' + firstEmpty + '">+ افزودن جلسه</button>';
@@ -2668,27 +2683,36 @@ function renderWeekBoard(){
 function iconSvg(id){
   return '<svg class="i" aria-hidden="true"><use href="#' + id + '"/></svg>';
 }
+function sessionTitle(s){
+  return s.subject ? composeTopic(s.subject, s.type, '', '', '') : (s.topic || '—');
+}
+function chapterLabel(ch){
+  var c = (ch || '').trim();
+  return /^[0-9۰-۹]+$/.test(c) ? 'فصل ' + c : c;
+}
+function sessionExtrasText(s){
+  var parts = [];
+  if (s.detail) parts.push(s.detail);
+  if (s.chapter) parts.push(chapterLabel(s.chapter));
+  if (s.mabhas) parts.push('مبحث ' + s.mabhas.replace(/^(مبحث)\s*/, ''));
+  return parts.join(' · ');
+}
 function sessionCellHtml(s, d, idx, cls){
   var time = (s.from || s.to) ? enToFa(s.from) + ' – ' + enToFa(s.to) : '';
-  var topic = s.topic || '—';
-  var extras = [];
-  if (s.detail) extras.push(s.detail);
-  if (s.chapter) extras.push('فصل ' + s.chapter);
-  if (s.mabhas) extras.push('مبحث ' + s.mabhas);
+  var title = sessionTitle(s), extras = sessionExtrasText(s);
   var useful = num(s.usefulTime), metrics = [];
   if (useful !== null) metrics.push(toFa(useful) + ' د');
   if (s.testCount) metrics.push(toFa(s.testCount) + ' تست');
   if (s.testPercent) metrics.push(toFa(s.testPercent) + '٪');
   var mark = cls === 'done' ? iconSvg('i-tick') : (cls === 'missed' ? iconSvg('i-close') : '<i class="wgd-dot"></i>');
-  return '<button type="button" class="wg-cell ' + cls + '" data-day="' + escapeAttr(d) + '" data-idx="' + idx + '" title="' + escapeAttr(topic + (time ? ' · ' + time : '')) + '">' +
+  return '<button type="button" class="wg-cell ' + cls + '" data-day="' + escapeAttr(d) + '" data-idx="' + idx + '" title="' + escapeAttr(title + (time ? ' · ' + time : '')) + '">' +
     '<span class="wgd-top"><span class="wgd-slot">' + toFa(idx + 1) + '</span><span class="wgd-mark">' + mark + '</span></span>' +
     (time ? '<span class="wg-time wgd-time">' + escapeAttr(time) + '</span>' : '') +
-    '<span class="wg-topic">' + escapeAttr(topic) + '</span>' +
-    (extras.length ? '<span class="wgd-detail">' + escapeAttr(extras.join(' · ')) + '</span>' : '') +
+    '<span class="wg-topic">' + escapeAttr(title) + '</span>' +
+    (extras ? '<span class="wgd-detail">' + escapeAttr(extras) + '</span>' : '') +
     (metrics.length ? '<span class="wgd-metrics">' + escapeAttr(metrics.join(' · ')) + '</span>' : '') +
     '</button>';
 }
-
 /* phones get one card per day; wider screens keep the full grid */
 function isPhoneWidth(){
   return !!(window.matchMedia && window.matchMedia('(max-width: 899px)').matches);
@@ -2854,18 +2878,16 @@ var picker = { idx:-1, subject:'', type:'', detail:'', chapter:'', mabhas:'' };
 var subjExpanded = true;
 
 function composeTopic(subject, type, detail, chapter, mabhas){
-  var parts = [];
-  if (subject) parts.push(subject);
-  var tail = [];
-  if (type) tail.push(type);
-  var ch = (chapter || '').trim();
-  if (ch) tail.push(/\d+$/.test(ch) && ch.length <= 3 ? ('فصل ' + ch) : ch);
-  var mb = (mabhas || '').trim();
-  if (mb) tail.push(mb.replace(/^(مبحث)\s*/, ''));
-  if (detail) tail.push(detail);
-  var tailStr = tail.join(' ');
-  if (parts.length && tailStr) return parts[0] + ' — ' + tailStr;
-  return parts.length ? parts[0] : tailStr;   /* a subject alone is a valid topic */
+  var base = subject ? (type ? subject + ' — ' + type : subject) : (type || '');
+  var extras = [];
+  var ch = chapterLabel(chapter);
+  if (ch) extras.push(ch);
+  var mb = (mabhas || '').trim().replace(/^(مبحث)\s*/, '');
+  if (mb) extras.push('مبحث ' + mb);
+  var dt = (detail || '').trim();
+  if (dt) extras.push(dt);
+  if (!extras.length) return base;
+  return base ? base + ' · ' + extras.join(' · ') : extras.join(' · ');
 }
 
 function sessionSubject(s){
@@ -4150,7 +4172,7 @@ function emptySession(){
     subject:'', type:'', detail:'', chapter:'', mabhas:'' };
 }
 function cellTopicNow(){
-  return composeTopic(ce.subject, ce.type, ce.detail, ce.chapter, ce.mabhas) || $('cellFree').value.trim();
+  return composeTopic(ce.subject, ce.type, $('cellDetail').value.trim(), $('cellChapter').value.trim(), $('cellMabhas').value.trim()) || $('cellFree').value.trim();
 }
 function updateCellPreview(){
   var t = cellTopicNow(), from = $('cellFrom').value.trim(), to = $('cellTo').value.trim();
@@ -4181,6 +4203,9 @@ function openCellEditor(d, idx, anchor){
   ce.mabhas = s.mabhas || '';
   $('cellTitle').textContent = dayLabel(tabJdn(weekStartJdn(w), d)) + ' — جلسه ' + toFa(idx + 1);
   $('cellFree').value = (ce.subject || ce.type) ? '' : (s.topic || '');
+  $('cellDetail').value = s.detail || '';
+  $('cellChapter').value = s.chapter || '';
+  $('cellMabhas').value = s.mabhas || '';
   $('cellFrom').value = enToFa(s.from);
   $('cellTo').value = enToFa(s.to);
   renderCellChips();
@@ -4214,6 +4239,9 @@ function saveCellEditor(){
   var s = w.days[ce.day].sessions[ce.idx];
   s.subject = ce.subject;
   s.type = ce.type;
+  s.detail = $('cellDetail').value.trim();
+  s.chapter = $('cellChapter').value.trim();
+  s.mabhas = $('cellMabhas').value.trim();
   s.topic = cellTopicNow();
   s.from = from ? enToFa(from) : '';
   s.to = to ? enToFa(to) : '';
@@ -4431,6 +4459,9 @@ function bindEvents(){
   $('cellFree').addEventListener('input', updateCellPreview);
   $('cellFrom').addEventListener('input', updateCellPreview);
   $('cellTo').addEventListener('input', updateCellPreview);
+  $('cellDetail').addEventListener('input', updateCellPreview);
+  $('cellChapter').addEventListener('input', updateCellPreview);
+  $('cellMabhas').addEventListener('input', updateCellPreview);
 
   /* four sections: bottom tab bar, week steps, empty states, settings shortcuts */
   document.querySelectorAll('.tab-btn').forEach(function(b){
