@@ -1404,6 +1404,61 @@ button:focus-visible, [role="tab"]:focus-visible{outline:2px solid var(--amber-2
   .subj-card .subj-name, .subj-card .subj-done, .tab .count.all{color:#047857 !important;}
 }
 
+/* ===== v2.4: the week on a computer is large and detailed ===== */
+@media (min-width: 1200px){
+  #app{max-width:1400px;}
+  .tab-screen{max-width:1400px;}
+  header.topbar.app-top{max-width:1352px;}
+}
+@media (min-width: 900px){
+  #weekBoard{padding:22px 24px; background:var(--parchment); border:1px solid var(--line); border-radius:24px; box-shadow:var(--shadow);}
+  #weekBoard .wgd-head{display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:18px;}
+  #weekBoard .wgd-title{margin:0; font-size:20px; font-weight:800; color:var(--heading);}
+  #weekBoard .wgd-legend{display:flex; gap:18px; flex-wrap:wrap; font-size:13px; color:var(--text-muted);}
+  #weekBoard .wgd-legend span{display:inline-flex; align-items:center;}
+  #weekBoard .wgd-legend .lg{display:inline-block; width:12px; height:12px; border-radius:4px; margin-inline-end:7px;}
+  #weekBoard .lg.done{background:var(--sage-2);}
+  #weekBoard .lg.missed{background:var(--miss);}
+  #weekBoard .lg.future{background:var(--amber-2);}
+  #weekBoard .lg.empty{background:transparent; border:1.5px dashed var(--text-muted);}
+  #weekBoard .wg-grid{display:flex; flex-direction:column; gap:10px; padding:0; border:0; border-radius:0; box-shadow:none; background:transparent; overflow:visible;}
+  #weekBoard .wg-row{display:grid; grid-template-columns:156px repeat(8, minmax(0,1fr)) 96px; gap:10px; align-items:stretch; min-width:0;}
+  #weekBoard .wg-head{align-items:end; padding:0 0 2px;}
+  #weekBoard .wg-num{flex:initial; text-align:center; font-size:12px; color:var(--text-muted); font-weight:700; padding-bottom:2px;}
+  #weekBoard .wg-label{position:static; flex:initial; background:#0F766E; color:#FFFFFF; border-radius:18px; padding:14px 14px 12px; display:flex; flex-direction:column; gap:4px; min-height:118px; text-align:start; justify-content:space-between; font-size:13px; line-height:1.4; box-shadow:none;}
+  #weekBoard .wg-label b{font-size:19px; font-weight:800; line-height:1.2;}
+  #weekBoard .wgd-date{font-size:13px; opacity:.92;}
+  #weekBoard .wgd-prog{display:flex; flex-direction:column; gap:5px; margin-top:auto;}
+  #weekBoard .wgd-bar{display:block; height:6px; border-radius:99px; background:rgba(255,255,255,.25); overflow:hidden;}
+  #weekBoard .wgd-bar span{display:block; height:100%; background:#FFFFFF; border-radius:99px;}
+  #weekBoard .wgd-prog em{font-style:normal; font-size:12px; font-weight:700; opacity:.95;}
+  #weekBoard .wg-row.off .wg-label{background:#5F6B7A;}
+  #weekBoard .wg-row.is-today .wg-label{box-shadow:0 0 0 3px var(--parchment), 0 0 0 5px var(--amber-2);}
+  #weekBoard .wg-cell{flex:initial; width:auto; min-height:118px; border-radius:18px; border:1px solid var(--line); background:var(--parchment-2); padding:12px 13px; display:flex; flex-direction:column; gap:6px; text-align:start; cursor:pointer; font:inherit; color:var(--heading); overflow:hidden; opacity:1; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;}
+  #weekBoard .wg-cell:hover{transform:translateY(-2px); box-shadow:0 12px 26px rgba(15,61,58,.16); border-color:var(--amber-2);}
+  #weekBoard .wg-cell:focus-visible{outline:2px solid var(--amber-2); outline-offset:2px;}
+  #weekBoard .wg-cell.done{background:var(--ok); border-color:var(--ok-line);}
+  #weekBoard .wg-cell.missed{background:var(--miss-soft); border-color:var(--miss-line);}
+  #weekBoard .wg-cell.wg-empty{background:transparent; border:1.5px dashed var(--line); color:var(--text-muted); align-items:center; justify-content:center; opacity:1;}
+  #weekBoard .wg-cell.wg-empty:hover{background:var(--parchment-2); border-style:solid;}
+  #weekBoard .wg-row.off .wg-cell:not(.done):not(.missed){background:var(--parchment-2);}
+  #weekBoard .wgd-add{display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700;}
+  #weekBoard .wgd-add .i{width:16px; height:16px;}
+  #weekBoard .wgd-top{display:flex; align-items:center; justify-content:space-between;}
+  #weekBoard .wgd-slot{font-size:12px; font-weight:800; color:var(--text-muted);}
+  #weekBoard .wgd-mark{display:inline-flex; width:20px; height:20px; align-items:center; justify-content:center;}
+  #weekBoard .wgd-mark .i{width:16px; height:16px; color:var(--sage-2);}
+  #weekBoard .wg-cell.missed .wgd-mark .i{color:var(--miss);}
+  #weekBoard .wgd-dot{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--amber-2);}
+  #weekBoard .wgd-time{font-size:12px; font-weight:700; color:var(--text-muted); direction:ltr; unicode-bidi:isolate; text-align:start; white-space:nowrap;}
+  #weekBoard .wg-cell .wg-topic{font-size:15px; font-weight:800; line-height:1.35; color:var(--heading); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; white-space:normal; overflow-wrap:anywhere;}
+  #weekBoard .wgd-detail{font-size:12px; color:var(--text-muted); line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  #weekBoard .wgd-metrics{margin-top:auto; font-size:11.5px; font-weight:700; color:var(--heading); line-height:1.4; direction:ltr; unicode-bidi:isolate; text-align:start;}
+  #weekBoard .wg-sum{flex:initial; width:auto; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:800; color:var(--amber-2); text-align:center; border-radius:18px; background:var(--parchment-2); border:1px solid var(--line);}
+  #weekBoard .wg-head .wg-sum{background:transparent; border:0; font-size:12px; color:var(--text-muted);}
+  #weekBoard .wg-head .wg-label{background:transparent; min-height:0; padding:0; box-shadow:none;}
+}
+
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -1771,7 +1826,7 @@ var SESSION_COUNT = 8;
 var STORAGE_KEY = 'study-planner-v3';
 var UNREADABLE_KEY = 'study-planner-v3-unreadable';
 var SCHEMA = 2;
-var APP_VERSION = '2.3.1';
+var APP_VERSION = '2.4.0';
 var BACKUP_REMINDER_DAYS = 7;
 
 /* ==================== subject library ==================== */
@@ -2568,21 +2623,20 @@ function renderWeekBoard(){
   head += '<span class="wg-sum">مفید</span></div>';
   var rows = '';
   DAY_NAMES.forEach(function(d){
-    var j = tabJdn(s0, d), g = jdnToJal(j), day = w.days[d], total = 0, cells = '';
+    var j = tabJdn(s0, d), g = jdnToJal(j), day = w.days[d], total = 0, cells = '', c = dayCounts(day, d, w);
     for (var idx = 0; idx < SESSION_COUNT; idx++){
       var s = day.sessions[idx];
       if (s && (s.topic || s.from || s.to)){
         total += sessionPlanMinutes(s);
-        cells += '<button type="button" class="wg-cell ' + sessionClass(s, d, w).trim() + '" data-day="' + escapeAttr(d) + '" data-idx="' + idx + '">' +
-          '<span class="wg-topic">' + escapeAttr(s.topic || '—') + '</span>' +
-          ((s.from || s.to) ? '<span class="wg-time">' + escapeAttr(enToFa(s.from)) + ' – ' + escapeAttr(enToFa(s.to)) + '</span>' : '') +
-          '</button>';
+        cells += sessionCellHtml(s, d, idx, sessionClass(s, d, w).trim());
       } else {
-        cells += '<button type="button" class="wg-cell wg-empty" data-day="' + escapeAttr(d) + '" data-idx="' + idx + '" aria-label="افزودن جلسه"></button>';
+        cells += '<button type="button" class="wg-cell wg-empty" data-day="' + escapeAttr(d) + '" data-idx="' + idx + '" aria-label="افزودن جلسه"><span class="wgd-add">' + iconSvg('i-plus') + '<span>افزودن</span></span></button>';
       }
     }
+    var pct = c.planned ? Math.round(c.done * 100 / c.planned) : 0;
     rows += '<div class="wg-row' + (d === DAY_NAMES[6] ? ' off' : '') + (j === t ? ' is-today' : '') + '">' +
-      '<span class="wg-label"><b>' + escapeAttr(d) + '</b>' + toFa(g.d) + ' ' + J_MONTHS[g.m - 1] + '</span>' +
+      '<span class="wg-label"><b>' + escapeAttr(d) + '</b><span class="wgd-date">' + toFa(g.d) + ' ' + J_MONTHS[g.m - 1] + '</span>' +
+      '<span class="wgd-prog"><span class="wgd-bar"><span style="width:' + pct + '%"></span></span><em>' + toFa(c.done) + ' از ' + toFa(c.planned) + '</em></span></span>' +
       cells + '<span class="wg-sum">' + (total ? hoursShort(total) : '—') + '</span></div>';
   });
   if (isPhoneWidth()){
@@ -2606,7 +2660,33 @@ function renderWeekBoard(){
     box.innerHTML = '<div class="wgc">' + cards + '</div>' + balanceHtml(w);
     return;
   }
-  box.innerHTML = '<div class="wg-grid">' + head + rows + '</div>' + balanceHtml(w);
+  var legend = '<div class="wgd-legend"><span><i class="lg done"></i>انجام شد</span><span><i class="lg missed"></i>عقب‌افتاده</span><span><i class="lg future"></i>برنامه‌ریزی‌شده</span><span><i class="lg empty"></i>خالی</span></div>';
+  box.innerHTML = '<div class="wgd-head"><h3 class="wgd-title">برنامهٔ کل هفته</h3>' + legend + '</div>' + '<div class="wg-grid">' + head + rows + '</div>' + balanceHtml(w);
+}
+
+/* one session as a box: slot, status, time, topic, details and results */
+function iconSvg(id){
+  return '<svg class="i" aria-hidden="true"><use href="#' + id + '"/></svg>';
+}
+function sessionCellHtml(s, d, idx, cls){
+  var time = (s.from || s.to) ? enToFa(s.from) + ' – ' + enToFa(s.to) : '';
+  var topic = s.topic || '—';
+  var extras = [];
+  if (s.detail) extras.push(s.detail);
+  if (s.chapter) extras.push('فصل ' + s.chapter);
+  if (s.mabhas) extras.push('مبحث ' + s.mabhas);
+  var useful = num(s.usefulTime), metrics = [];
+  if (useful !== null) metrics.push(toFa(useful) + ' د');
+  if (s.testCount) metrics.push(toFa(s.testCount) + ' تست');
+  if (s.testPercent) metrics.push(toFa(s.testPercent) + '٪');
+  var mark = cls === 'done' ? iconSvg('i-tick') : (cls === 'missed' ? iconSvg('i-close') : '<i class="wgd-dot"></i>');
+  return '<button type="button" class="wg-cell ' + cls + '" data-day="' + escapeAttr(d) + '" data-idx="' + idx + '" title="' + escapeAttr(topic + (time ? ' · ' + time : '')) + '">' +
+    '<span class="wgd-top"><span class="wgd-slot">' + toFa(idx + 1) + '</span><span class="wgd-mark">' + mark + '</span></span>' +
+    (time ? '<span class="wg-time wgd-time">' + escapeAttr(time) + '</span>' : '') +
+    '<span class="wg-topic">' + escapeAttr(topic) + '</span>' +
+    (extras.length ? '<span class="wgd-detail">' + escapeAttr(extras.join(' · ')) + '</span>' : '') +
+    (metrics.length ? '<span class="wgd-metrics">' + escapeAttr(metrics.join(' · ')) + '</span>' : '') +
+    '</button>';
 }
 
 /* phones get one card per day; wider screens keep the full grid */
