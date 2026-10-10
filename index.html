@@ -899,11 +899,11 @@ table.export-table.subj-table tbody th{text-align:right;padding-inline-start:12p
 
   /* --- wide desktop (≥1200px): sidebar beside the sheet --- */
   @media (min-width: 1200px){
-    #screenWeek{
+    #weekBody{
       display:grid;
       grid-template-columns:minmax(0, 760px) minmax(300px, 1fr);
       column-gap:24px;
-      padding:0 24px;
+      padding:0;
       align-items:start;
     }
     header.topbar,
@@ -1179,84 +1179,334 @@ input:focus-visible, textarea:focus-visible{outline:none; box-shadow:0 0 0 3px r
   --miss-line:#FECACA; --weak:#B91C1C; --chip:#F8FAFC; --chip-line:#D7E7E1;
 }
 
+/* ============ v1.4: whole-week plan view ============ */
+.view-switch{display:flex; gap:6px; margin:12px 14px 0; padding:4px; background:var(--parchment-2); border:1px solid var(--line); border-radius:12px;}
+.view-seg{flex:1; border:none; background:transparent; color:var(--text-muted); font-family:inherit; font-size:14px; font-weight:700; padding:8px 10px; border-radius:9px; cursor:pointer;}
+.view-seg.on{background:var(--parchment); color:var(--heading); box-shadow:var(--shadow);}
+.week-board{padding:12px 14px 0;}
+.wb-cols{display:grid; grid-auto-flow:column; grid-auto-columns:minmax(112px, 1fr); gap:8px; overflow-x:auto; scroll-snap-type:x proximity; padding-bottom:6px;}
+.wb-col{scroll-snap-align:start; min-width:0; display:flex; flex-direction:column; gap:6px; padding:8px; background:var(--parchment); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow);}
+.wb-col.is-today{border-color:var(--amber);}
+.wb-head{display:flex; flex-direction:column; gap:1px; padding-bottom:6px; border-bottom:1px dashed var(--line);}
+.wb-name{font-size:13.5px; font-weight:800; color:var(--heading);}
+.wb-date{font-size:11.5px; color:var(--text-muted);}
+.wb-total{font-size:12px; font-weight:800; color:var(--amber-2); margin-top:2px;}
+.wb-list{display:flex; flex-direction:column; gap:5px;}
+.wb-item{display:flex; flex-direction:column; gap:1px; text-align:start; padding:6px 7px; border-radius:9px; border:1px solid var(--line); background:var(--parchment-2); color:var(--text); font-family:inherit; cursor:pointer;}
+.wb-item.done{background:var(--ok-soft); border-color:var(--sage-2);}
+.wb-item.missed{background:var(--miss-soft); border-color:var(--miss-line);}
+.wb-time{font-size:11px; color:var(--text-muted); white-space:nowrap;}
+.wb-topic{font-size:12.5px; font-weight:700; color:var(--heading); line-height:1.35; overflow-wrap:anywhere;}
+.wb-none{font-size:12px; color:var(--text-muted); padding:4px 2px;}
+.wb-balance{margin-top:12px; background:var(--parchment); border:1px solid var(--line); border-radius:12px; overflow-x:auto; box-shadow:var(--shadow);}
+.wb-balance-title{font-size:12.5px; font-weight:800; color:var(--heading); padding:10px 12px 4px;}
+.wb-balance table{width:100%; min-width:520px; border-collapse:collapse; font-size:12px;}
+.wb-balance th, .wb-balance td{padding:7px 5px; text-align:center; border-top:1px solid var(--line); white-space:nowrap; color:var(--text);}
+.wb-balance thead th{color:var(--text-muted); font-weight:700;}
+.wb-balance tbody th{text-align:start; color:var(--heading); font-weight:700;}
+.wb-balance tfoot th, .wb-balance tfoot td{font-weight:800; color:var(--heading); background:var(--parchment-2);}
+@media (min-width: 900px){
+  .wb-cols{grid-template-columns:repeat(7, minmax(0,1fr)); grid-auto-flow:row; overflow:visible;}
+  .wb-balance table{min-width:0;}
+}
+@media (min-width: 1200px){
+  .view-switch{grid-column:1 / -1; margin:12px 0 0;}
+  .week-board{grid-column:1 / -1; max-width:none; margin:0; padding:12px 0 0;}
+  #weekBody.is-week .subj-card{grid-column:1 / -1; max-width:none;}
+}
+
+/* ============ v1.5: whole-week grid (days as rows, sessions as boxes) and the weekly report ============ */
+.wg-grid{--wg-w:76px; display:flex; flex-direction:column; gap:5px; padding:8px; overflow-x:auto; background:var(--parchment); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow);}
+.wg-row{display:flex; align-items:stretch; gap:5px; min-width:max-content;}
+.wg-head{align-items:center;}
+.wg-num{flex:0 0 var(--wg-w); text-align:center; font-size:11px; font-weight:700; color:var(--text-muted);}
+.wg-label{position:sticky; right:0; z-index:2; flex:0 0 96px; display:flex; flex-direction:column; justify-content:center; gap:1px; padding:6px 8px; background:var(--amber); color:#FFFFFF; border-radius:9px; font-size:12px; line-height:1.4;}
+.wg-label b{font-size:13px;}
+.wg-row.off .wg-label{background:#7C8592;}
+.wg-row.is-today .wg-label{box-shadow:0 0 0 2px var(--amber-2) inset;}
+.wg-cell{flex:0 0 var(--wg-w); width:var(--wg-w); min-height:60px; display:flex; flex-direction:column; gap:2px; padding:5px 6px; overflow:hidden; text-align:start; font-family:inherit; color:var(--text); background:var(--parchment-2); border:1px solid var(--line); border-radius:8px; cursor:pointer;}
+.wg-cell.wg-empty{border-style:dashed; opacity:.6;}
+.wg-cell.done{background:var(--ok-soft); border-color:var(--sage-2);}
+.wg-cell.missed{background:var(--miss-soft); border-color:var(--miss-line);}
+.wg-row.off .wg-cell:not(.done):not(.missed){background:var(--parchment);}
+.wg-topic{font-size:11.5px; font-weight:700; color:var(--heading); line-height:1.35; overflow-wrap:anywhere;}
+.wg-time{font-size:10px; color:var(--text-muted); white-space:nowrap;}
+.wg-sum{flex:0 0 66px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:12px; font-weight:800; color:var(--amber-2);}
+.wg-head .wg-sum{color:var(--text-muted); font-weight:700;}
+@media (min-width: 1200px){
+  .wg-grid{--wg-w:74px; overflow-x:visible;}
+}
+
+/* ============ v1.6: quick session editor ============ */
+.cell-clear{width:100%; margin-top:10px; color:var(--miss);}
+
+/* ============ v2.0: four sections with a bottom tab bar ============ */
+.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;display:block}
+.icon-btn .i{width:20px;height:20px}
+.tab-screen{display:none; padding:12px 14px 120px; max-width:1160px; margin:0 auto;}
+.tab-screen.on{display:block}
+.app-top-row{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.app-top .sub{margin:6px 0 0; font-size:13px; color:#A7E8DC}
+.tabbar{position:fixed; left:50%; bottom:0; transform:translateX(-50%); width:100%; max-width:560px; display:grid; grid-template-columns:repeat(4,1fr); gap:4px; background:var(--parchment); border-top:1px solid var(--line); padding:8px 8px calc(10px + env(safe-area-inset-bottom,0px)); z-index:40; box-shadow:0 -4px 16px rgba(15,61,58,.06);}
+.tab-btn{border:0; background:none; font:inherit; font-size:12px; color:var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 0; border-radius:14px; cursor:pointer;}
+.tab-btn .ic{height:26px; display:flex; align-items:center; justify-content:center;}
+.tab-btn .i{width:24px; height:24px}
+.tab-btn.on{color:var(--amber-2); font-weight:800; background:var(--parchment-2);}
+.section-h{font-size:15px; font-weight:800; color:var(--heading); margin:16px 4px 8px}
+.set-card, .set-list, .empty-card, .today-progress, .streak-card{background:var(--parchment); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);}
+.set-card{padding:12px}
+.set-list{overflow:hidden}
+.empty-card{border-style:dashed; padding:18px; text-align:center; color:var(--text-muted); margin:10px 0;}
+.empty-card .btn{margin-top:10px}
+.today-progress{padding:14px; margin:12px 0;}
+.tp-row{display:flex; justify-content:space-between; gap:12px}
+.tp-label{font-size:12px; color:var(--text-muted)}
+.tp-big{font-size:26px; font-weight:800; color:var(--heading)}
+.tp-side{text-align:left}
+.tp-mid{font-size:17px; font-weight:800; color:var(--heading)}
+.tp-bar{height:9px; border-radius:999px; background:var(--line); overflow:hidden; margin-top:12px}
+.tp-bar span{display:block; height:100%; background:var(--sage); border-radius:999px; transition:width .3s}
+.streak-card{padding:16px; text-align:center; margin-bottom:12px}
+.streak-num{font-size:44px; font-weight:800; color:var(--sage-2); line-height:1.1}
+.streak-label{font-size:13px; color:var(--text-muted)}
+.report-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:12px 0}
+.report-stats .stat{background:var(--parchment); border:1px solid var(--line); border-radius:16px; padding:12px; text-align:center; box-shadow:var(--shadow)}
+.report-stats .stat span{font-size:12px; color:var(--text-muted); display:block}
+.report-stats .stat b{font-size:15px; color:var(--heading); display:block; margin-top:4px}
+.report-actions{display:flex; gap:10px; margin:6px 0 4px}
+.report-actions .btn{flex:1; margin-top:0}
+.set-row{display:flex; align-items:center; gap:12px; width:100%; padding:14px; border:0; border-bottom:1px solid var(--line); background:none; font:inherit; font-size:15px; font-weight:700; color:var(--heading); text-align:start; cursor:pointer;}
+.set-row:last-of-type{border-bottom:0}
+.set-row .ic{width:36px; height:36px; border-radius:12px; background:var(--parchment-2); display:flex; align-items:center; justify-content:center; flex:0 0 auto}
+.set-row .ic .i{width:20px; height:20px; color:var(--amber-2)}
+.set-row .t{flex:1; min-width:0}
+.set-row .t small{display:block; font-size:12px; font-weight:400; color:var(--text-muted); margin-top:2px}
+.set-row .chev{width:18px; height:18px; color:var(--text-muted); margin-inline-start:auto}
+.set-row.static{cursor:default}
+@media (min-width: 900px){
+  .tab-screen{padding-left:24px; padding-right:24px;}
+}
+/* week header: the date gets the room it needs on a phone */
+.week-topbar .topline{gap:6px}
+.week-topbar .topline .icon-btn{width:38px; height:38px; flex:0 0 38px}
+.week-date-btn{font-size:16px}
+.set-card input{width:100%; height:46px; border:1px solid var(--line); border-radius:12px; background:#fff; font:inherit; font-size:16px; padding:0 12px; color:var(--heading);}
+.set-card input:focus{border-color:var(--amber-2); outline:none; box-shadow:0 0 0 3px rgba(13,148,136,.2);}
+@media (min-width: 900px){
+  .tabbar{bottom:16px; max-width:520px; border:1px solid var(--line); border-radius:22px; padding:6px 8px; box-shadow:0 12px 32px rgba(15,61,58,.16);}
+}
+
+/* ===== v2.1: sessions styled like the approved design ===== */
+.session{background:#FFFFFF; border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); padding:14px; margin-bottom:10px;}
+.session.done{background:#D1FAE5; border-color:#A7F3D0;}
+.session.missed{background:#FEE2E2; border-color:#FECACA;}
+.session.future{background:#FFFFFF; border-color:var(--line);}
+.session.empty{background:#FFFFFF; border-style:dashed;}
+.session .done-toggle{width:48px; height:48px; min-width:48px; border-radius:15px; border:2px solid #9CC9BE; background:#FFFFFF; display:flex; align-items:center; justify-content:center; padding:0;}
+.session .done-toggle .i{width:22px; height:22px; color:#FFFFFF; stroke-width:2.4; opacity:0; transition:opacity .15s;}
+.session .done-toggle.done{background:var(--sage); border-color:var(--sage);}
+.session .done-toggle.done .i{opacity:1;}
+.session .topic{font-size:16px; font-weight:800; color:var(--heading);}
+.session .perf-head span{font-size:11px; color:var(--text-muted); font-weight:600;}
+.session .perf-item input{height:46px; border-radius:13px; font-size:17px; font-weight:700; color:var(--heading); text-align:center; border:1px solid var(--line); background:#FFFFFF;}
+/* desktop: the header and the week bar line up with the content below them */
+@media (min-width: 900px){
+  header.topbar.app-top{max-width:1112px; margin:0 auto; border-radius:0 0 24px 24px;}
+  header.topbar.week-topbar{max-width:none; margin:0;}
+}
+
+/* ===== v2.2: remaining overlays and the phone week, in the approved style ===== */
+.time-steps{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;}
+.time-steps .tl{font-size:12px; color:var(--text-muted); font-weight:700; margin:0 2px 6px;}
+.time-steps .tstep{display:flex; align-items:center; gap:6px; background:var(--parchment); border:1px solid var(--line); border-radius:16px; padding:6px;}
+.time-steps .sbtn{width:44px; height:44px; flex:0 0 44px; border-radius:13px; border:1px solid var(--line); background:var(--parchment-2); display:grid; place-items:center; color:var(--amber-2); padding:0; cursor:pointer;}
+.time-steps .sbtn .i{width:20px; height:20px;}
+.time-steps .tval{flex:1; min-width:0; text-align:center; font:inherit; font-size:21px; font-weight:800; color:var(--heading); background:transparent; border:0; outline:none; padding:0;}
+.cell-dur{font-size:12.5px; color:var(--text-muted); margin:10px 2px 0;}
+.cell-clear{display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:10px; color:var(--miss); background:#FFFFFF; border:1px solid var(--miss-line);}
+.cell-clear .i{width:18px; height:18px;}
+
+.picker-overlay.is-pop{align-items:flex-start; justify-content:flex-start; background:transparent; padding:0;}
+.picker-overlay.is-pop .picker-sheet{position:fixed; margin:0; max-height:calc(100vh - 32px); overflow:auto; border:1px solid var(--line); box-shadow:0 22px 56px rgba(15,61,58,.3);}
+
+.wgc{display:flex; flex-direction:column; gap:10px;}
+.wgc-day{display:flex; gap:10px; background:var(--parchment); border:1px solid var(--line); border-radius:18px; padding:8px; box-shadow:var(--shadow);}
+.wgc-label{flex:0 0 84px; background:var(--amber); color:#FFFFFF; border-radius:14px; padding:10px 6px; display:flex; flex-direction:column; align-items:center; gap:2px; text-align:center;}
+.wgc-label b{font-size:14px;}
+.wgc-label span{font-size:12px;}
+.wgc-label em{font-style:normal; font-size:12px; font-weight:800; margin-top:6px; background:rgba(255,255,255,.2); padding:2px 9px; border-radius:99px;}
+.wgc-day.off .wgc-label{background:#7C8592;}
+.wgc-day.is-today .wgc-label{box-shadow:0 0 0 2px #FFFFFF, 0 0 0 4px var(--amber-2);}
+.wgc-list{flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;}
+.wgc .wg-cell{flex:none; width:100%; min-height:0; display:flex; flex-direction:row; align-items:center; gap:8px; padding:8px 10px; border-radius:12px; border:1px solid var(--line); background:var(--parchment-2); overflow:hidden; text-align:start; font:inherit; font-size:13px; color:var(--heading); cursor:pointer;}
+.wgc .wg-cell.done{background:var(--ok); border-color:var(--ok-line);}
+.wgc .wg-cell.missed{background:var(--miss-soft); border-color:var(--miss-line);}
+.wgc .wg-topic{font-weight:800; color:var(--heading); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.wgc-time{font-size:11px; color:var(--text-muted); white-space:nowrap; direction:ltr; unicode-bidi:isolate;}
+.wgc .wgc-add{border-style:dashed; background:var(--parchment); color:var(--text-muted); font-weight:700; justify-content:center;}
+
+.lib-list{display:flex; flex-direction:column; gap:8px; border:0; border-radius:0; overflow:visible;}
+.lib-item{display:grid; grid-template-columns:1fr auto; align-items:center; gap:4px 10px; background:var(--parchment); border:1px solid var(--line); border-radius:16px; padding:10px 12px; border-bottom:1px solid var(--line);}
+.lib-item:last-child{border-bottom:1px solid var(--line);}
+.lib-name{font-weight:800; color:var(--heading); font-size:15px;}
+.lib-goal{grid-column:1; font-size:12px; font-weight:700; color:var(--amber-2); background:#E6FAF6; border-radius:999px; padding:2px 9px; justify-self:start;}
+.lib-btns{grid-column:2; grid-row:1 / span 2; display:flex; gap:6px;}
+.lib-btns button{width:38px; height:38px; border-radius:12px; border:1px solid var(--line); background:var(--parchment); display:grid; place-items:center; color:var(--heading); padding:0; cursor:pointer;}
+.lib-btns .i{width:18px; height:18px;}
+.lib-btns .lib-goalbtn{color:var(--amber-2); background:#E6FAF6; border-color:#CCEFE8;}
+.lib-btns .lib-del{color:var(--miss);}
+
+@media (min-width: 900px){
+  .picker-overlay:not(.is-pop){align-items:center; justify-content:center; padding:24px;}
+  .picker-overlay:not(.is-pop) .picker-sheet{border-radius:22px; max-width:440px; width:100%; margin:0 auto;}
+  .overlay{align-items:center; padding:24px;}
+  .overlay-inner{max-width:780px; width:100%; border-radius:22px; max-height:calc(100vh - 48px); overflow:auto; margin:0 auto;}
+  #libSubjects, #libTypes, #libTemplates{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+}
+/* the two time columns share the sheet width and never spill past it */
+.time-steps{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}
+.time-steps .tcol{min-width:0;}
+.time-steps .tstep{width:100%; box-sizing:border-box; min-width:0;}
+
+/* ===== v2.3: finishing touches for publishing ===== */
+/* readable secondary text and contrast on the app's own screens (the counselor's report keeps its colours) */
+@media (prefers-color-scheme: light){ :root{ --text-muted:#56657A; } }
+.btn-primary{background:var(--amber-2);}
+@media (prefers-color-scheme: dark){ .btn-primary{background:#2DD4BF; color:#04201E;} }
+.wgc-label, .wg-label{background:#0F766E; color:#FFFFFF;}
+.wgc-day.off .wgc-label, .wg-row.off .wg-label{background:#5F6B7A;}
+.wgc-time{font-size:12px;}
+button:focus-visible, [role="tab"]:focus-visible{outline:2px solid var(--amber-2); outline-offset:2px;}
+
+/* the windows that were still in the older style */
+.confirm-box{background:#FFFFFF; border:1px solid var(--line); border-radius:20px; padding:18px; box-shadow:0 22px 56px rgba(15,61,58,.3);}
+.confirm-box p{color:var(--heading);}
+.confirm-box .btn{height:48px;}
+.undo-bar{background:var(--ink); color:#FFFFFF; border-radius:16px; box-shadow:0 14px 34px rgba(15,61,58,.3);}
+#toast{background:var(--ink); color:#FFFFFF; border-radius:14px;}
+
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#D5F3EC" stroke="none"/><path d="M8 12.6l2.6 2.6L16 9.6"/></symbol>
+<symbol id="i-tick" viewBox="0 0 24 24"><path d="M5.5 12.8l4.2 4.2 8.8-9"/></symbol>
+<symbol id="i-week" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 4.5v15"/></symbol>
+<symbol id="i-report" viewBox="0 0 24 24"><path d="M4 20V11.5M10 20V5M16 20v-6.5M21 20H3"/></symbol>
+<symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.3" fill="#D5F3EC"/><circle cx="9" cy="17" r="2.3" fill="#D5F3EC"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M3.5 6.2c2.6-1.7 5.6-1.6 8.5.7 2.9-2.3 5.9-2.4 8.5-.7v12.6c-2.6-1.6-5.6-1.6-8.5.6-2.9-2.2-5.9-2.2-8.5-.6z"/><path d="M12 6.9V19"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3.6l8.4 4.4-8.4 4.4L3.6 8 12 3.6z" fill="#D5F3EC"/><path d="M3.6 12.6L12 17l8.4-4.4M3.6 16.6L12 21l8.4-4.4"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3.5v3M16 3.5v3"/><circle cx="12" cy="15" r="1.5" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24"><path d="M12 4v10.5M7.5 10.2L12 14.7l4.5-4.5"/><path d="M5 16.5V18a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 18v-1.5"/></symbol>
+<symbol id="i-restore" viewBox="0 0 24 24"><path d="M12 15V4.5M7.5 8.8L12 4.3l4.5 4.5"/><path d="M5 16.5V18a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 18v-1.5"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.6 14.4A8 8 0 0 1 9.6 4.4a8 8 0 1 0 10 10z" fill="#D5F3EC"/></symbol>
+<symbol id="i-chev-left" viewBox="0 0 24 24"><path d="M15 5.5L8.5 12l6.5 6.5"/></symbol>
+<symbol id="i-chev-right" viewBox="0 0 24 24"><path d="M9 5.5l6.5 6.5L9 18.5"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol><symbol id="i-pen" viewBox="0 0 24 24"><path d="M4.5 19.5l1-4.2L16 4.8a2.1 2.1 0 0 1 3 3L8.5 18.3l-4 1.2z"/><path d="M14 6.8l3 3"/></symbol><symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M9.5 7V5.2A1.2 1.2 0 0 1 10.7 4h2.6a1.2 1.2 0 0 1 1.2 1.2V7M7 7l.8 11.3A1.8 1.8 0 0 0 9.6 20h4.8a1.8 1.8 0 0 0 1.8-1.7L17 7"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></symbol><symbol id="i-minus" viewBox="0 0 24 24"><path d="M6 12h12"/></symbol></defs></svg>
 <div id="app">
+  <header class="topbar app-top">
+    <div class="app-top-row">
+      <h1 id="appTitle">امروز</h1>
+      <div class="save-indicator" id="saveIndicator" role="status"></div>
+    </div>
+    <p class="sub" id="appSub"></p>
+  </header>
 
-  <!-- ============ Weeks list screen ============ -->
-  <section id="screenWeeks">
-    <header class="topbar">
-      <h1>گام</h1>
-      <p class="sub">هفته جدید بساز، هر روز عملکردت را ثبت کن و تصویرش را برای مشاورت بفرست</p>
-      <div class="archive-row">
-        <button class="btn btn-small" id="examsBtn">امتحان‌ها</button>
-        <div class="home-wrap">
-          <button class="icon-btn" id="homeMenuBtn" aria-label="کتابخانه، پشتیبان و بازیابی" aria-haspopup="true" title="گزینه‌ها">⋮</button>
-          <div class="menu home-menu hidden" id="homeMenu" role="menu">
-            <button class="menu-item" id="libraryBtn" role="menuitem">کتابخانه دروس</button>
-            <button class="menu-item" id="backupBtn" role="menuitem">پشتیبان‌گیری</button>
-            <button class="menu-item" id="restoreBtn" role="menuitem">بازیابی</button>
-          </div>
-        </div>
-        <input type="file" id="restoreFile" accept=".json,application/json" hidden>
-      </div>
-    </header>
+  <section class="tab-screen on" data-tab="today" aria-label="امروز">
     <div class="notices hidden" id="weeksNotice"></div>
     <section class="exam-strip" id="examStrip" aria-label="امتحان‌های پیش رو"></section>
-    <main class="weeks-list" id="weeksList"></main>
-    <div class="actionbar">
-      <button class="btn btn-primary" id="newWeekBtn">+ هفته جدید</button>
+    <div class="empty-card hidden" id="todayEmpty">
+      <p>هفتهٔ امروز هنوز ساخته نشده.</p>
+      <button class="btn btn-primary" id="todayCreate">ساخت هفتهٔ امروز</button>
+    </div>
+    <div class="today-progress hidden" id="todayProgress"></div>
+    <div id="todaySheetSlot"></div>
+  </section>
+
+  <section class="tab-screen" data-tab="week" aria-label="هفته">
+    <div class="empty-card hidden" id="weekEmpty">
+      <p>هنوز هفته‌ای نساخته‌ای.</p>
+      <button class="btn btn-primary" id="weekEmptyNew">ساخت اولین هفته</button>
+    </div>
+    <div id="weekBody" class="hidden">
+      <header class="topbar week-topbar">
+        <div class="topline">
+          <button class="icon-btn" id="weekPrev" aria-label="هفتهٔ قبل" title="هفتهٔ قبل"><svg class="i"><use href="#i-chev-right"/></svg></button>
+          <button class="week-date-btn" id="weekDateBtn" title="تغییر تاریخ هفته">
+            <span id="weekDateText">—</span>
+            <span class="wd-phase hidden" id="weekPhase"></span>
+            <span class="wd-caret" aria-hidden="true">▾</span>
+          </button>
+          <button class="icon-btn" id="weekNext" aria-label="هفتهٔ بعد" title="هفتهٔ بعد"><svg class="i"><use href="#i-chev-left"/></svg></button>
+          <button class="icon-btn" id="weekMenuBtn" aria-label="گزینه‌های هفته" title="گزینه‌ها">⋮</button>
+        </div>
+        <div class="meta-row single">
+          <div class="meta-field">
+            <label for="weekTitle">عنوان هفته (اختیاری)</label>
+            <input id="weekTitle" type="text" placeholder="مثلاً هفتهٔ امتحان" maxlength="60">
+          </div>
+        </div>
+      </header>
+      <section class="week-summary" id="weekSummary"></section>
+      <section class="week-chart" id="weekChart" aria-label="مطالعهٔ مفید هر روز"></section>
+      <div class="view-switch" id="viewSwitch" role="tablist" aria-label="نمای برنامه">
+        <button type="button" class="view-seg on" id="viewDay" role="tab" aria-selected="true">این روز</button>
+        <button type="button" class="view-seg" id="viewWeek" role="tab" aria-selected="false">کل هفته</button>
+      </div>
+      <nav class="daytabs" id="dayTabs" role="tablist" aria-label="روزهای هفته"></nav>
+      <section class="week-board hidden" id="weekBoard" aria-label="برنامهٔ کل هفته"></section>
+      <div id="weekSheetSlot"><main class="sheet" id="sheetArea"></main></div>
+      <section class="subj-card hidden" id="subjCard">
+        <button class="subj-head" id="subjToggle"><span>جمع‌بندی دروس</span><span class="subj-arrow" id="subjArrow">▴</span></button>
+        <div class="subj-body" id="subjBody"></div>
+      </section>
     </div>
   </section>
 
-  <!-- ============ Week screen ============ -->
-  <section id="screenWeek" class="hidden">
-    <header class="topbar week-topbar">
-      <div class="topline">
-        <button class="icon-btn" id="backBtn" aria-label="بازگشت به فهرست هفته‌ها" title="بازگشت">→</button>
-        <button class="week-date-btn" id="weekDateBtn" title="تغییر تاریخ هفته">
-          <span id="weekDateText">—</span>
-          <span class="wd-phase hidden" id="weekPhase"></span>
-          <span class="wd-caret" aria-hidden="true">▾</span>
-        </button>
-        <button class="icon-btn" id="weekMenuBtn" aria-label="گزینه‌های هفته" title="گزینه‌ها">⋮</button>
-      </div>
-      <div class="meta-row">
-        <div class="meta-field">
-          <label for="studentName">نام دانش‌آموز</label>
-          <input id="studentName" type="text" placeholder="مثلاً محمد رضایی">
-        </div>
-        <div class="meta-field">
-          <label for="weekTitle">عنوان هفته (اختیاری)</label>
-          <input id="weekTitle" type="text" placeholder="مثلاً هفتهٔ امتحان" maxlength="60">
-        </div>
-      </div>
-      <div class="save-indicator" id="saveIndicator" role="status"></div>
-    </header>
+  <section class="tab-screen" data-tab="report" aria-label="گزارش">
+    <div class="streak-card" id="streakCard"></div>
+    <div class="report-stats" id="reportStats"></div>
+    <div class="report-actions">
+      <button class="btn btn-primary" id="dayExportBtn">گزارش امروز</button>
+      <button class="btn btn-secondary2" id="weekExportBtn">گزارش هفته</button>
+    </div>
+    <div class="section-h">هفته‌ها</div>
+    <main class="weeks-list" id="weeksList"></main>
+    <div class="actionbar"><button class="btn btn-primary" id="newWeekBtn">+ هفته جدید</button></div>
+  </section>
 
-    <section class="week-summary" id="weekSummary"></section>
-    <section class="week-chart" id="weekChart" aria-label="مطالعهٔ مفید هر روز"></section>
-
-    <nav class="daytabs" id="dayTabs" role="tablist" aria-label="روزهای هفته"></nav>
-
-    <main class="sheet" id="sheetArea"></main>
-
-    <section class="subj-card hidden" id="subjCard">
-      <button class="subj-head" id="subjToggle"><span>جمع‌بندی دروس</span><span class="subj-arrow" id="subjArrow">▴</span></button>
-      <div class="subj-body" id="subjBody"></div>
-    </section>
+  <section class="tab-screen" data-tab="settings" aria-label="تنظیمات">
+    <div class="section-h">دانش‌آموز</div>
+    <div class="set-card"><input class="text" id="studentName" type="text" placeholder="مثلاً محمد رضایی" aria-label="نام دانش‌آموز"></div>
+    <div class="section-h">برنامه‌ریزی</div>
+    <div class="set-list">
+      <button class="set-row" id="libraryBtn"><span class="ic"><svg class="i"><use href="#i-book"/></svg></span><span class="t">کتابخانهٔ دروس<small>درس‌ها و انواع خواندن</small></span><svg class="i chev"><use href="#i-chev-left"/></svg></button>
+      <button class="set-row" id="templatesBtn"><span class="ic"><svg class="i"><use href="#i-layers"/></svg></span><span class="t">قالب‌های هفته<small>برای ساختن سریع هفته</small></span><svg class="i chev"><use href="#i-chev-left"/></svg></button>
+      <button class="set-row" id="goalsBtn"><span class="ic"><svg class="i"><use href="#i-target"/></svg></span><span class="t">هدف‌های ساعتی<small>ساعت هفتگی هر درس</small></span><svg class="i chev"><use href="#i-chev-left"/></svg></button>
+      <button class="set-row" id="examsBtn"><span class="ic"><svg class="i"><use href="#i-calendar"/></svg></span><span class="t">امتحان‌ها<small>شمارش معکوس تا آزمون</small></span><svg class="i chev"><use href="#i-chev-left"/></svg></button>
+    </div>
+    <div class="section-h">داده‌ها</div>
+    <div class="set-list">
+      <button class="set-row" id="backupBtn"><span class="ic"><svg class="i"><use href="#i-save"/></svg></span><span class="t">پشتیبان‌گیری<small>ذخیرهٔ فایل JSON</small></span><svg class="i chev"><use href="#i-chev-left"/></svg></button>
+      <button class="set-row" id="restoreBtn"><span class="ic"><svg class="i"><use href="#i-restore"/></svg></span><span class="t">بازیابی از فایل<small>ادغام یا جایگزینی</small></span><svg class="i chev"><use href="#i-chev-left"/></svg></button>
+      <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+    </div>
+    <div class="section-h">ظاهر</div>
+    <div class="set-list">
+      <div class="set-row static"><span class="ic"><svg class="i"><use href="#i-moon"/></svg></span><span class="t">تم<small>مطابق تنظیم گوشی یا کامپیوتر</small></span></div>
+    </div>
   </section>
 </div>
 
-<!-- ============ Action bar (week screen) ============ -->
-<div class="actionbar hidden" id="weekActionBar">
-  <button class="btn btn-primary" id="dayExportBtn">گزارش امروز</button>
-  <button class="btn btn-secondary2" id="weekExportBtn">گزارش هفته</button>
-  <button class="btn btn-ghost" id="resetBtn">پاک‌کردن</button>
-</div>
+<nav class="tabbar" id="tabbar" aria-label="بخش‌های برنامه">
+  <button class="tab-btn on" data-tab="today" id="tabToday" role="tab" aria-selected="true"><span class="ic"><svg class="i"><use href="#i-check"/></svg></span><span>امروز</span></button>
+  <button class="tab-btn" data-tab="week" id="tabWeek" role="tab" aria-selected="false"><span class="ic"><svg class="i"><use href="#i-week"/></svg></span><span>هفته</span></button>
+  <button class="tab-btn" data-tab="report" id="tabReport" role="tab" aria-selected="false"><span class="ic"><svg class="i"><use href="#i-report"/></svg></span><span>گزارش</span></button>
+  <button class="tab-btn" data-tab="settings" id="tabSettings" role="tab" aria-selected="false"><span class="ic"><svg class="i"><use href="#i-settings"/></svg></span><span>تنظیمات</span></button>
+</nav>
 
 <!-- ============ Week menu ============ -->
 <div class="menu hidden" id="weekMenu">
@@ -1264,6 +1514,7 @@ input:focus-visible, textarea:focus-visible{outline:none; box-shadow:0 0 0 3px r
   <button class="menu-item" id="blankWeekBtn">هفته جدید خالی</button>
   <button class="menu-item" id="changeDateBtn">تغییر تاریخ هفته</button>
   <button class="menu-item" id="saveTemplateBtn">ذخیره به‌عنوان قالب</button>
+  <button class="menu-item" id="resetBtn">پاک‌کردن اطلاعات هفته</button>
   <button class="menu-item danger" id="deleteWeekBtn">حذف این هفته</button>
 </div>
 
@@ -1360,6 +1611,35 @@ input:focus-visible, textarea:focus-visible{outline:none; box-shadow:0 0 0 3px r
       <button class="btn btn-primary" id="pickerCommit">ثبت</button>
       <button class="btn btn-secondary2" id="pickerFreeEdit">ویرایش آزاد متن</button>
     </div>
+  </div>
+</div>
+
+<!-- ============ Quick session editor (tap a box in the week grid) ============ -->
+<div class="picker-overlay hidden" id="cellOverlay">
+  <div class="picker-sheet" role="dialog" aria-modal="true" aria-labelledby="cellTitle">
+    <div class="picker-grab"></div>
+    <div class="picker-head">
+      <h3 id="cellTitle">جلسه</h3>
+      <button class="picker-close" id="cellClose" aria-label="بستن" title="بستن">✕</button>
+    </div>
+    <div class="picker-sec">درس</div>
+    <div class="chip-grid" id="cellSubjects"></div>
+    <div class="picker-sec">نوع خواندن</div>
+    <div class="chip-grid" id="cellTypes"></div>
+    <div class="picker-sec">یا متن آزاد</div>
+    <input class="picker-detail" id="cellFree" type="text" placeholder="اگر درس و نوع نمی‌خواهی، اینجا بنویس">
+    <div class="picker-sec">ساعت</div>
+    <div class="time-steps">
+      <div class="tcol"><div class="tl">از</div><div class="tstep"><button type="button" class="sbtn" data-cell-time="cellFrom" data-d="-15" aria-label="از: ۱۵ دقیقه کمتر"><svg class="i"><use href="#i-minus"/></svg></button><input class="tval" id="cellFrom" type="text" inputmode="numeric" placeholder="۰۸:۰۰" aria-label="ساعت از"><button type="button" class="sbtn" data-cell-time="cellFrom" data-d="15" aria-label="از: ۱۵ دقیقه بیشتر"><svg class="i"><use href="#i-plus"/></svg></button></div></div>
+      <div class="tcol"><div class="tl">تا</div><div class="tstep"><button type="button" class="sbtn" data-cell-time="cellTo" data-d="-15" aria-label="تا: ۱۵ دقیقه کمتر"><svg class="i"><use href="#i-minus"/></svg></button><input class="tval" id="cellTo" type="text" inputmode="numeric" placeholder="۰۹:۳۰" aria-label="ساعت تا"><button type="button" class="sbtn" data-cell-time="cellTo" data-d="15" aria-label="تا: ۱۵ دقیقه بیشتر"><svg class="i"><use href="#i-plus"/></svg></button></div></div>
+    </div>
+    <div class="cell-dur" id="cellDur"></div>
+    <div class="picker-preview" id="cellPreview"></div>
+    <div class="picker-actions">
+      <button class="btn btn-primary" id="cellSave">ثبت</button>
+      <button class="btn btn-secondary2" id="cellFull">ویرایش کامل</button>
+    </div>
+    <button class="btn cell-clear" id="cellClear"><svg class="i"><use href="#i-trash"/></svg>پاک‌کردن این جلسه</button>
   </div>
 </div>
 
@@ -1472,7 +1752,7 @@ var SESSION_COUNT = 8;
 var STORAGE_KEY = 'study-planner-v3';
 var UNREADABLE_KEY = 'study-planner-v3-unreadable';
 var SCHEMA = 2;
-var APP_VERSION = '1.3.0';
+var APP_VERSION = '2.3.0';
 var BACKUP_REMINDER_DAYS = 7;
 
 /* ==================== subject library ==================== */
@@ -1741,7 +2021,7 @@ function emptyWeek(startJdn, title){
     days: days
   };
 }
-var state = { schema: SCHEMA, studentName:'', weeks:[], lastWeekId:null, library:null, lastBackupAt:null, templates:[], exams:[] };
+var state = { schema: SCHEMA, studentName:'', weeks:[], lastWeekId:null, library:null, lastBackupAt:null, templates:[], exams:[], viewMode:'day', tab:'today' };
 var currentWeekId = null;
 var activeDay = DAY_NAMES[0];
 var saveTimer = null, indTimer = null;
@@ -2013,6 +2293,8 @@ function loadState(){
       state.library = sanitizeLibrary(p.library);
       state.templates = sanitizeTemplates(p.templates);
       state.exams = sanitizeExams(p.exams);
+      state.viewMode = p.viewMode === 'week' ? 'week' : 'day';
+      state.tab = ['today','week','report','settings'].indexOf(p.tab) >= 0 ? p.tab : 'today';
       state.lastBackupAt = typeof p.lastBackupAt === 'string' ? p.lastBackupAt : null;
       if (p.schema !== SCHEMA) saveState();
       return;
@@ -2033,30 +2315,110 @@ function loadState(){
   } catch(e){}
 }
 
-/* ==================== navigation ==================== */
-function showWeeks(){
-  currentWeekId = null;
-  $('screenWeek').classList.add('hidden');
-  $('weekActionBar').classList.add('hidden');
-  $('screenWeeks').classList.remove('hidden');
-  closeWeekMenu();
-  renderWeeksList();
+/* ==================== navigation: four sections ==================== */
+var TABS = ['today', 'week', 'report', 'settings'];
+function setActiveDayFor(w){
+  var s0 = weekStartJdn(w), t = todayJdn();
+  activeDay = (w && t >= s0 && t <= s0 + 6) ? faDayName(t) : DAY_NAMES[0];
 }
+function setTab(name){
+  var next = TABS.indexOf(name) >= 0 ? name : 'today';
+  if (next !== state.tab) scheduleSave();
+  state.tab = next;
+  closeWeekMenu();
+  document.querySelectorAll('.tab-screen').forEach(function(sec){
+    sec.classList.toggle('on', sec.getAttribute('data-tab') === state.tab);
+  });
+  document.querySelectorAll('.tab-btn').forEach(function(b){
+    var on = b.getAttribute('data-tab') === state.tab;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-selected', String(on));
+  });
+  renderActiveTab();
+  window.scrollTo(0, 0);
+}
+function showWeeks(){ setTab('report'); }
 function openWeek(id){
   var w = getWeek(id);
-  if (!w) return showWeeks();
+  if (!w) return;
   currentWeekId = id;
   state.lastWeekId = id;
-  saveState();
-  var s = weekStartJdn(w), t = todayJdn();
-  activeDay = (t >= s && t <= s + 6) ? faDayName(t) : DAY_NAMES[0];
-  $('screenWeeks').classList.add('hidden');
-  $('screenWeek').classList.remove('hidden');
-  $('weekActionBar').classList.remove('hidden');
-  closeWeekMenu();
-  $('studentName').value = state.studentName;
+  setActiveDayFor(w);
+  setTab('week');
+}
+function stepWeek(dir){
+  var list = sortedWeeks().reverse(), idx = -1;
+  for (var i = 0; i < list.length; i++){
+    if (list[i].id === currentWeekId) idx = i;
+  }
+  var next = list[idx + dir];
+  if (!next) return;
+  currentWeekId = next.id;
+  setActiveDayFor(next);
+  renderWeekTab();
+}
+function renderAppTitle(){
+  var t = state.tab, w = currentWeek(), title, sub;
+  if (t === 'today'){
+    title = 'امروز';
+    sub = dayLabel(todayJdn());
+  } else if (t === 'week'){
+    title = 'هفته';
+    sub = w ? rangeLabel(weekStartJdn(w)) : 'هنوز هفته‌ای نداری';
+  } else if (t === 'report'){
+    title = 'گزارش';
+    sub = 'زنجیرهٔ روزهای کامل: ' + toFa(completedStreak());
+  } else {
+    title = 'تنظیمات';
+    sub = 'کتابخانه، قالب‌ها، هدف‌ها و داده‌ها';
+  }
+  $('appTitle').textContent = title;
+  $('appSub').textContent = sub;
+}
+function renderActiveTab(){
+  if (state.tab === 'today') renderTodayTab();
+  else if (state.tab === 'week') renderWeekTab();
+  else if (state.tab === 'report') renderReportTab();
+  else renderSettingsTab();
+  renderAppTitle();
+}
+/* the day sheet lives in whichever section is showing it */
+function placeSheet(where){
+  $(where === 'today' ? 'todaySheetSlot' : 'weekSheetSlot').appendChild($('sheetArea'));
+}
+function renderTodayTab(){
+  var t = todayJdn(), tw = weekAtStart(weekStartOf(t), null);
+  $('todayEmpty').classList.toggle('hidden', !!tw);
+  $('todayProgress').classList.toggle('hidden', !tw);
+  $('todaySheetSlot').classList.toggle('hidden', !tw);
+  if (tw){
+    currentWeekId = tw.id;
+    activeDay = faDayName(t);
+    placeSheet('today');
+    $('sheetArea').classList.remove('hidden');
+    var day = tw.days[activeDay], c = dayCounts(day, activeDay, tw);
+    var pct = c.planned ? Math.round(c.done * 100 / c.planned) : 0;
+    $('todayProgress').innerHTML =
+      '<div class="tp-row"><div><div class="tp-label">انجام شده امروز</div><div class="tp-big">' + toFa(c.done) + ' از ' + toFa(c.planned) + '</div></div>' +
+      '<div class="tp-side"><div class="tp-label">زمان مفید امروز</div><div class="tp-mid">' + minutesToLabel(sumUsefulMinutes(day)) + '</div></div></div>' +
+      '<div class="tp-bar"><span style="width:' + pct + '%"></span></div>';
+    renderSheet();
+  }
+  renderNotices();
+  renderExamStrip();
+}
+function renderWeekTab(){
+  if (!currentWeek()){
+    var pick = weekAtStart(weekStartOf(todayJdn()), null) || latestWeek();
+    currentWeekId = pick ? pick.id : null;
+    if (pick) setActiveDayFor(pick);
+  }
+  var w = currentWeek();
+  $('weekEmpty').classList.toggle('hidden', !!w);
+  $('weekBody').classList.toggle('hidden', !w);
+  if (!w) return;
+  placeSheet('week');
   renderWeekViews();
-  window.scrollTo(0, 0);
 }
 function renderWeekViews(){
   renderWeekHeader();
@@ -2065,6 +2427,26 @@ function renderWeekViews(){
   renderWeekSummary();
   renderWeekChart();
   renderSubjectSummary();
+  applyViewMode();
+}
+function renderReportTab(){
+  var st = completedStreak(), w = currentWeek();
+  $('streakCard').innerHTML = '<div class="streak-num">' + toFa(st) + '</div>' +
+    '<div class="streak-label">' + (st ? 'روز پشت‌سرهم، همهٔ برنامه انجام شده' : 'هنوز زنجیره‌ای نیست؛ امروز را کامل کن') + '</div>';
+  var html = '';
+  if (w){
+    var ws = weekStats(w), cnt = weekCounts(w), pct = cnt.planned ? Math.round(cnt.done * 100 / cnt.planned) : null;
+    html = '<div class="stat"><span>مطالعه مفید</span><b>' + minutesToLabel(ws.useful) + '</b></div>' +
+      '<div class="stat"><span>میانگین درصد</span><b>' + (ws.avgPercent === null ? '—' : toFa(ws.avgPercent) + '٪') + '</b></div>' +
+      '<div class="stat"><span>انجام شده</span><b>' + (pct === null ? '—' : toFa(pct) + '٪') + '</b></div>';
+  }
+  $('reportStats').innerHTML = html;
+  $('dayExportBtn').disabled = !w;
+  $('weekExportBtn').disabled = !w;
+  renderWeeksList();
+}
+function renderSettingsTab(){
+  $('studentName').value = state.studentName;
 }
 
 /* ==================== rendering: weeks list ==================== */
@@ -2091,8 +2473,6 @@ function renderNotices(){
   var box = $('weeksNotice');
   if (!box) return;
   var html = '';
-  var streak = completedStreak();
-  if (streak > 0) html += noticeHtml('زنجیرهٔ روزهای کامل: ' + toFa(streak) + ' روز پشت‌سرهم، همهٔ برنامهٔ هر روز انجام شده است.', '', '', true);
   if (state.weeks.length && !state.weeks.some(function(w){ return weekPhase(w) === 'current'; })){
     html += noticeHtml('هفتهٔ جاری (' + rangeLabel(weekStartOf(todayJdn())) + ') هنوز ساخته نشده.', 'ساخت هفتهٔ جاری', 'create-current');
   }
@@ -2124,10 +2504,142 @@ function renderWeeksList(){
     html += 'مطالعه مفید: ' + minutesToLabel(st.useful);
     if (cnt.planned) html += ' · انجام ' + toFa(cnt.done) + ' از ' + toFa(cnt.planned);
     html += '</div>';
-    html += '<button class="wc-del" aria-label="حذف هفته" title="حذف هفته">✕</button>';
+    html += '<button class="wc-del" aria-label="حذف هفته" title="حذف هفته"><svg class="i"><use href="#i-trash"/></svg></button>';
     html += '</div>';
   });
   list.innerHTML = html;
+}
+
+/* ==================== plan view: this day, or the whole week side by side ==================== */
+function setViewMode(mode){
+  state.viewMode = mode === 'week' ? 'week' : 'day';
+  scheduleSave();
+  applyViewMode();
+  if (state.viewMode === 'day'){
+    renderTabs();
+    renderSheet();
+  }
+}
+function applyViewMode(){
+  var week = state.viewMode === 'week';
+  $('dayTabs').classList.toggle('hidden', week);
+  $('sheetArea').classList.toggle('hidden', week);
+  $('weekBoard').classList.toggle('hidden', !week);
+  $('viewDay').classList.toggle('on', !week);
+  $('viewWeek').classList.toggle('on', week);
+  $('viewDay').setAttribute('aria-selected', String(!week));
+  $('viewWeek').setAttribute('aria-selected', String(week));
+  $('weekBody').classList.toggle('is-week', week);
+  if (week) renderWeekBoard();
+}
+/* hours with one decimal in Persian digits: 270 minutes -> ۴٫۵ س */
+function hoursShort(min){
+  return toFa(String(Math.round(min / 6) / 10).replace('.', '٫')) + ' س';
+}
+function renderWeekBoard(){
+  var box = $('weekBoard'), w = currentWeek();
+  if (!box) return;
+  if (!w){
+    box.innerHTML = '';
+    return;
+  }
+  var s0 = weekStartJdn(w), t = todayJdn();
+  var head = '<div class="wg-row wg-head"><span class="wg-label"></span>';
+  for (var i = 0; i < SESSION_COUNT; i++) head += '<span class="wg-num">' + toFa(i + 1) + '</span>';
+  head += '<span class="wg-sum">مفید</span></div>';
+  var rows = '';
+  DAY_NAMES.forEach(function(d){
+    var j = tabJdn(s0, d), g = jdnToJal(j), day = w.days[d], total = 0, cells = '';
+    for (var idx = 0; idx < SESSION_COUNT; idx++){
+      var s = day.sessions[idx];
+      if (s && (s.topic || s.from || s.to)){
+        total += sessionPlanMinutes(s);
+        cells += '<button type="button" class="wg-cell ' + sessionClass(s, d, w).trim() + '" data-day="' + escapeAttr(d) + '" data-idx="' + idx + '">' +
+          '<span class="wg-topic">' + escapeAttr(s.topic || '—') + '</span>' +
+          ((s.from || s.to) ? '<span class="wg-time">' + escapeAttr(enToFa(s.from)) + ' – ' + escapeAttr(enToFa(s.to)) + '</span>' : '') +
+          '</button>';
+      } else {
+        cells += '<button type="button" class="wg-cell wg-empty" data-day="' + escapeAttr(d) + '" data-idx="' + idx + '" aria-label="افزودن جلسه"></button>';
+      }
+    }
+    rows += '<div class="wg-row' + (d === DAY_NAMES[6] ? ' off' : '') + (j === t ? ' is-today' : '') + '">' +
+      '<span class="wg-label"><b>' + escapeAttr(d) + '</b>' + toFa(g.d) + ' ' + J_MONTHS[g.m - 1] + '</span>' +
+      cells + '<span class="wg-sum">' + (total ? hoursShort(total) : '—') + '</span></div>';
+  });
+  if (isPhoneWidth()){
+    var cards = '';
+    DAY_NAMES.forEach(function(d){
+      var j = tabJdn(s0, d), g = jdnToJal(j), day = w.days[d], total = 0, list = '', firstEmpty = -1;
+      for (var idx = 0; idx < SESSION_COUNT; idx++){
+        var s = day.sessions[idx];
+        if (s && (s.topic || s.from || s.to)){
+          total += sessionPlanMinutes(s);
+          list += '<button type="button" class="wg-cell ' + sessionClass(s, d, w).trim() + '" data-day="' + escapeAttr(d) + '" data-idx="' + idx + '">' +
+            '<span class="wgc-time">' + ((s.from || s.to) ? escapeAttr(enToFa(s.from)) + ' – ' + escapeAttr(enToFa(s.to)) : '') + '</span>' +
+            '<span class="wg-topic">' + escapeAttr(s.topic || '—') + '</span></button>';
+        } else if (firstEmpty < 0) firstEmpty = idx;
+      }
+      if (firstEmpty >= 0) list += '<button type="button" class="wg-cell wgc-add" data-day="' + escapeAttr(d) + '" data-idx="' + firstEmpty + '">+ افزودن جلسه</button>';
+      cards += '<section class="wgc-day' + (d === DAY_NAMES[6] ? ' off' : '') + (j === t ? ' is-today' : '') + '">' +
+        '<div class="wgc-label"><b>' + escapeAttr(d) + '</b><span>' + toFa(g.d) + ' ' + J_MONTHS[g.m - 1] + '</span><em>' + (total ? hoursShort(total) : '—') + '</em></div>' +
+        '<div class="wgc-list">' + list + '</div></section>';
+    });
+    box.innerHTML = '<div class="wgc">' + cards + '</div>' + balanceHtml(w);
+    return;
+  }
+  box.innerHTML = '<div class="wg-grid">' + head + rows + '</div>' + balanceHtml(w);
+}
+
+/* phones get one card per day; wider screens keep the full grid */
+function isPhoneWidth(){
+  return !!(window.matchMedia && window.matchMedia('(max-width: 899px)').matches);
+}
+
+/* subjects by day, in planned hours, so the load can be balanced */
+function balanceHtml(w){
+  var rows = {}, order = [], dayTotals = {}, grand = 0;
+  DAY_NAMES.forEach(function(d){
+    dayTotals[d] = 0;
+    w.days[d].sessions.forEach(function(s){
+      var pm = sessionPlanMinutes(s);
+      if (!pm) return;
+      var k = planSessionKey(s);
+      if (!rows[k]){
+        rows[k] = {};
+        order.push(k);
+      }
+      rows[k][d] = (rows[k][d] || 0) + pm;
+      dayTotals[d] += pm;
+      grand += pm;
+    });
+  });
+  if (!order.length) return '';
+  var lib = getLibrary();
+  order.sort(function(a, b){
+    var ia = lib.subjects.indexOf(a), ib = lib.subjects.indexOf(b);
+    if (ia !== -1 && ib !== -1) return ia - ib;
+    if (ia !== -1) return -1;
+    if (ib !== -1) return 1;
+    return a < b ? -1 : (a > b ? 1 : 0);
+  });
+  var head = '<th>درس</th>';
+  DAY_NAMES.forEach(function(d){ head += '<th>' + escapeAttr(d.charAt(0)) + '</th>'; });
+  head += '<th>جمع</th>';
+  var body = '';
+  order.forEach(function(k){
+    var rowTotal = 0, cells = '';
+    DAY_NAMES.forEach(function(d){
+      var v = rows[k][d] || 0;
+      rowTotal += v;
+      cells += '<td>' + (v ? hoursShort(v) : '—') + '</td>';
+    });
+    body += '<tr><th>' + escapeAttr(k) + '</th>' + cells + '<td><b>' + hoursShort(rowTotal) + '</b></td></tr>';
+  });
+  var foot = '<th>جمع روز</th>';
+  DAY_NAMES.forEach(function(d){ foot += '<td><b>' + (dayTotals[d] ? hoursShort(dayTotals[d]) : '—') + '</b></td>'; });
+  foot += '<td><b>' + hoursShort(grand) + '</b></td>';
+  return '<div class="wb-balance"><div class="wb-balance-title">توازن درس‌ها در هفته (ساعت برنامه‌ریزی‌شده)</div>' +
+    '<table><thead><tr>' + head + '</tr></thead><tbody>' + body + '</tbody><tfoot><tr>' + foot + '</tr></tfoot></table></div>';
 }
 
 /* ==================== rendering: week screen ==================== */
@@ -2190,7 +2702,7 @@ function renderSheet(){
     html += '<div class="session' + sessionClass(s, activeDay, w) + '" data-idx="' + idx + '">';
     html += '<div class="s-row1">';
     html += '<span class="badge">' + toFa(idx + 1) + '</span>';
-    html += '<button class="done-toggle' + (s.done ? ' done' : '') + '" aria-pressed="' + (s.done ? 'true' : 'false') + '" aria-label="انجام شد" title="انجام شد">✓</button>';
+    html += '<button class="done-toggle' + (s.done ? ' done' : '') + '" aria-pressed="' + (s.done ? 'true' : 'false') + '" aria-label="انجام شد" title="انجام شد"><svg class="i"><use href="#i-tick"/></svg></button>';
     html += '<input class="topic" type="text" readonly aria-label="درس و نوع خواندن" placeholder="انتخاب سریع درس و نوع خواندن" value="' + escapeAttr(s.topic) + '">';
     html += '<button class="s-more" type="button" aria-label="زمان و عملکرد" title="زمان و عملکرد">⋯</button>';
     html += '</div>';
@@ -2541,8 +3053,8 @@ function renderLib(){
       html += '<span class="lib-name">' + escapeAttr(name) + '</span>';
       if (kind === 'subject') html += '<span class="lib-goal">' + (g ? 'هدف: ' + toFa(g) + ' ساعت' : 'بدون هدف') + '</span>';
       html += '<span class="lib-btns">';
-      if (kind === 'subject') html += '<button class="lib-goalbtn" title="هدف هفتگی">◎</button>';
-      html += '<button class="lib-edit" title="تغییر نام">✎</button><button class="lib-del" title="حذف">✕</button>';
+      if (kind === 'subject') html += '<button class="lib-goalbtn" title="هدف هفتگی"><svg class="i"><use href="#i-target"/></svg></button>';
+      html += '<button class="lib-edit" title="تغییر نام"><svg class="i"><use href="#i-pen"/></svg></button><button class="lib-del" title="حذف"><svg class="i"><use href="#i-trash"/></svg></button>';
       html += '</span></div>';
     });
     return html || '<div class="lib-empty">موردی نیست</div>';
@@ -2563,7 +3075,7 @@ function renderLibTemplates(){
     html += '<div class="lib-item" data-kind="template" data-id="' + escapeAttr(t.id) + '">';
     html += '<span class="lib-name">' + escapeAttr(t.name) + '</span>';
     html += '<span class="lib-goal">' + toFa(planSessionCount(t.days)) + ' جلسه</span>';
-    html += '<span class="lib-btns"><button class="lib-edit" title="تغییر نام">✎</button><button class="lib-del" title="حذف">✕</button></span>';
+    html += '<span class="lib-btns"><button class="lib-edit" title="تغییر نام"><svg class="i"><use href="#i-pen"/></svg></button><button class="lib-del" title="حذف"><svg class="i"><use href="#i-trash"/></svg></button></span>';
     html += '</div>';
   });
   box.innerHTML = html;
@@ -2855,8 +3367,7 @@ function hideUndo(){
   $('undoBar').classList.add('hidden');
 }
 function renderAll(){
-  if (currentWeek()) renderWeekViews();
-  else showWeeks();
+  renderActiveTab();
   if (!$('libOverlay').classList.contains('hidden')) renderLib();
   if (!$('examOverlay').classList.contains('hidden')) renderExamList();
 }
@@ -2955,6 +3466,7 @@ function openDatePicker(mode, opts){
   $('calConfirm').textContent = confirms[mode];
   closeWeekMenu();
   $('dateOverlay').classList.remove('hidden');
+  placePop('dateOverlay', opts.anchor || null, 400);
   renderSourceChips();
   renderPickBox();
   renderCalendar();
@@ -3157,7 +3669,7 @@ function renderExamList(){
     var j = jdnOfIso(e.date), days = j - t;
     html += '<div class="exam-row' + (days < 0 ? ' past' : '') + '" data-id="' + escapeAttr(e.id) + '">';
     html += '<div class="exam-line1"><span class="exam-title">' + escapeAttr(e.title) + '</span>';
-    html += '<span class="lib-btns"><button class="lib-edit" title="تغییر نام">✎</button><button class="lib-del" title="حذف">✕</button></span></div>';
+    html += '<span class="lib-btns"><button class="lib-edit" title="تغییر نام"><svg class="i"><use href="#i-pen"/></svg></button><button class="lib-del" title="حذف"><svg class="i"><use href="#i-trash"/></svg></button></span></div>';
     html += '<button class="exam-date-btn" type="button">' + escapeAttr(dayLabel(j)) + ' · ' + escapeAttr(countdownText(days)) + '</button>';
     html += '</div>';
   });
@@ -3532,6 +4044,145 @@ function applyRestore(mode){
 }
 
 
+/* ==================== quick session editor (tap a box in the week grid) ==================== */
+var ce = { day: null, idx: -1, subject: '', type: '', detail: '', chapter: '', mabhas: '' };
+function emptySession(){
+  return { topic:'', from:'', to:'', usefulTime:'', testCount:'', testPercent:'', done:false,
+    subject:'', type:'', detail:'', chapter:'', mabhas:'' };
+}
+function cellTopicNow(){
+  return composeTopic(ce.subject, ce.type, ce.detail, ce.chapter, ce.mabhas) || $('cellFree').value.trim();
+}
+function updateCellPreview(){
+  var t = cellTopicNow(), from = $('cellFrom').value.trim(), to = $('cellTo').value.trim();
+  var when = (from || to) ? '  ·  ' + (from || '…') + ' – ' + (to || '…') : '';
+  $('cellPreview').textContent = (t || 'هنوز درس یا متنی انتخاب نشده') + when;
+  var a = parseTimeToMinutes(from), b = parseTimeToMinutes(to);
+  $('cellDur').textContent = (a !== null && b !== null) ? 'مدت: ' + durationLabel(((b - a) % 1440 + 1440) % 1440) : '';
+}
+function renderCellChips(){
+  var lib = getLibrary();
+  $('cellSubjects').innerHTML = lib.subjects.map(function(x){
+    return '<button type="button" class="pick-chip' + (ce.subject === x ? ' sel' : '') + '" data-kind="subject" data-val="' + escapeAttr(x) + '">' + escapeAttr(x) + '</button>';
+  }).join('');
+  $('cellTypes').innerHTML = lib.types.map(function(x){
+    return '<button type="button" class="pick-chip' + (ce.type === x ? ' sel' : '') + '" data-kind="type" data-val="' + escapeAttr(x) + '">' + escapeAttr(x) + '</button>';
+  }).join('');
+}
+function openCellEditor(d, idx, anchor){
+  var w = currentWeek();
+  if (!w || !w.days[d]) return;
+  var s = w.days[d].sessions[idx];
+  ce.day = d;
+  ce.idx = idx;
+  ce.subject = s.subject || '';
+  ce.type = s.type || '';
+  ce.detail = s.detail || '';
+  ce.chapter = s.chapter || '';
+  ce.mabhas = s.mabhas || '';
+  $('cellTitle').textContent = dayLabel(tabJdn(weekStartJdn(w), d)) + ' — جلسه ' + toFa(idx + 1);
+  $('cellFree').value = (ce.subject || ce.type) ? '' : (s.topic || '');
+  $('cellFrom').value = enToFa(s.from);
+  $('cellTo').value = enToFa(s.to);
+  renderCellChips();
+  updateCellPreview();
+  $('cellOverlay').classList.remove('hidden');
+  placePop('cellOverlay', anchor || null, 420);
+}
+function closeCellEditor(){
+  $('cellOverlay').classList.add('hidden');
+}
+function pickCellChip(e){
+  var b = e.target.closest('.pick-chip');
+  if (!b) return;
+  var kind = b.getAttribute('data-kind'), val = b.getAttribute('data-val');
+  if (kind === 'subject') ce.subject = ce.subject === val ? '' : val;
+  else ce.type = ce.type === val ? '' : val;
+  renderCellChips();
+  updateCellPreview();
+}
+function saveCellEditor(){
+  var w = currentWeek();
+  if (!w){
+    closeCellEditor();
+    return;
+  }
+  var from = $('cellFrom').value.trim(), to = $('cellTo').value.trim();
+  if ((from && parseTimeToMinutes(from) === null) || (to && parseTimeToMinutes(to) === null)){
+    showToast('ساعت را درست بنویس، مثلاً ۰۸:۳۰', true);
+    return;
+  }
+  var s = w.days[ce.day].sessions[ce.idx];
+  s.subject = ce.subject;
+  s.type = ce.type;
+  s.topic = cellTopicNow();
+  s.from = from ? enToFa(from) : '';
+  s.to = to ? enToFa(to) : '';
+  closeCellEditor();
+  saveState();
+  renderWeekBoard();
+  renderTabs();
+  renderSubjectSummary();
+  showToast('جلسه ثبت شد');
+}
+function clearCellEditor(){
+  var w = currentWeek();
+  if (!w) return;
+  var d = ce.day, idx = ce.idx, old = w.days[d].sessions[idx];
+  askConfirm('این جلسه پاک شود؟ (درس، ساعت، زمان مفید و تست‌ها)', function(){
+    w.days[d].sessions[idx] = emptySession();
+    closeCellEditor();
+    saveState();
+    renderWeekBoard();
+    renderTabs();
+    renderSubjectSummary();
+    offerUndo('جلسه پاک شد', function(){
+      w.days[d].sessions[idx] = old;
+      saveState();
+    });
+  });
+}
+function openCellInDayView(){
+  var d = ce.day, idx = ce.idx;
+  closeCellEditor();
+  activeDay = d;
+  setViewMode('day');
+  setTab('week');
+  var el = $('sheetArea').querySelector('.session[data-idx="' + idx + '"]');
+  if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' });
+}
+
+/* ==================== popovers, steppers, durations (v2.2) ==================== */
+/* on wide screens a sheet can sit beside the thing it edits; on phones it stays a bottom sheet */
+function placePop(overlayId, anchorEl, width){
+  var ov = $(overlayId), sheet = ov.querySelector('.picker-sheet');
+  var wide = !!(window.matchMedia && window.matchMedia('(min-width: 900px)').matches);
+  var pop = wide && !!anchorEl;
+  ov.classList.toggle('is-pop', pop);
+  if (!pop){ sheet.style.left = ''; sheet.style.top = ''; sheet.style.width = ''; return; }
+  var r = anchorEl.getBoundingClientRect(), h = sheet.offsetHeight || 520, w = width || 420;
+  var x = r.left - w - 14;
+  if (x < 16) x = r.right + 14;
+  x = Math.max(16, Math.min(x, window.innerWidth - w - 16));
+  var y = Math.max(16, Math.min(r.top, window.innerHeight - h - 16));
+  sheet.style.width = w + 'px'; sheet.style.left = x + 'px'; sheet.style.top = y + 'px';
+}
+function durationLabel(mins){
+  var h = Math.floor(mins / 60), m = mins % 60, parts = [];
+  if (h) parts.push(toFa(h) + ' ساعت');
+  if (m || !h) parts.push(toFa(m) + ' دقیقه');
+  return parts.join(' و ');
+}
+/* the 15-minute buttons: move the clock by a quarter hour, clamped to the day */
+function stepCellTime(id, delta){
+  var el = $(id), m = parseTimeToMinutes(el.value.trim());
+  if (m === null) m = id === 'cellFrom' ? 8 * 60 : 9 * 60 + 30;
+  m = Math.max(0, Math.min(23 * 60 + 45, m + delta));
+  var hh = Math.floor(m / 60), mm = m % 60;
+  el.value = toFa((hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm);
+  updateCellPreview();
+}
+
 /* ==================== sheet helpers ==================== */
 function refreshSession(el, s){
   var open = el.classList.contains('open');
@@ -3649,16 +4300,6 @@ function bindEvents(){
     openWeek(w.id);
   });
 
-  /* home menu (weeks screen): library, backup, restore */
-  $('homeMenuBtn').addEventListener('click', function(e){
-    e.stopPropagation();
-    $('homeMenu').classList.toggle('hidden');
-  });
-  $('homeMenu').addEventListener('click', function(){ this.classList.add('hidden'); });
-  document.addEventListener('click', function(e){
-    var m = $('homeMenu');
-    if (!m.classList.contains('hidden') && !m.contains(e.target) && !e.target.closest('#homeMenuBtn')) m.classList.add('hidden');
-  });
   /* weekly chart: tapping a bar opens that day */
   $('weekChart').addEventListener('click', function(e){
     var b = e.target.closest('.wc-col');
@@ -3669,9 +4310,42 @@ function bindEvents(){
     renderWeekChart();
   });
 
+  /* plan view: this day, or the whole week side by side */
+  $('viewDay').addEventListener('click', function(){ setViewMode('day'); });
+  $('viewWeek').addEventListener('click', function(){ setViewMode('week'); });
+  $('weekBoard').addEventListener('click', function(e){
+    var b = e.target.closest('.wg-cell');
+    if (!b) return;
+    openCellEditor(b.getAttribute('data-day'), parseInt(b.getAttribute('data-idx'), 10), b);
+  });
+  $('cellSave').addEventListener('click', saveCellEditor);
+  $('cellClear').addEventListener('click', clearCellEditor);
+  $('cellFull').addEventListener('click', openCellInDayView);
+  $('cellClose').addEventListener('click', closeCellEditor);
+  $('cellOverlay').addEventListener('click', function(e){
+    var st = e.target.closest('[data-cell-time]');
+    if (st) stepCellTime(st.getAttribute('data-cell-time'), parseInt(st.getAttribute('data-d'), 10));
+    else if (e.target === this) closeCellEditor();
+  });
+  $('cellSubjects').addEventListener('click', pickCellChip);
+  $('cellTypes').addEventListener('click', pickCellChip);
+  $('cellFree').addEventListener('input', updateCellPreview);
+  $('cellFrom').addEventListener('input', updateCellPreview);
+  $('cellTo').addEventListener('input', updateCellPreview);
+
+  /* four sections: bottom tab bar, week steps, empty states, settings shortcuts */
+  document.querySelectorAll('.tab-btn').forEach(function(b){
+    b.addEventListener('click', function(){ setTab(b.getAttribute('data-tab')); });
+  });
+  $('weekPrev').addEventListener('click', function(){ stepWeek(-1); });
+  $('weekNext').addEventListener('click', function(){ stepWeek(1); });
+  $('todayCreate').addEventListener('click', createCurrentWeek);
+  $('weekEmptyNew').addEventListener('click', function(){ openDatePicker('new'); });
+  $('templatesBtn').addEventListener('click', function(){ renderLib(); $('libOverlay').classList.remove('hidden'); });
+  $('goalsBtn').addEventListener('click', function(){ renderLib(); $('libOverlay').classList.remove('hidden'); });
+
   /* week screen header */
-  $('backBtn').addEventListener('click', showWeeks);
-  $('weekDateBtn').addEventListener('click', function(){ openDatePicker('move'); });
+  $('weekDateBtn').addEventListener('click', function(){ openDatePicker('move', { anchor: this }); });
   $('weekTitle').addEventListener('input', function(){
     var w = currentWeek();
     if (!w) return;
@@ -3783,9 +4457,13 @@ function bindEvents(){
   });
 
   /* action bar */
-  $('dayExportBtn').addEventListener('click', function(){ generateExport('day'); });
+  $('dayExportBtn').addEventListener('click', function(){
+    if (currentWeek()) setActiveDayFor(currentWeek());
+    generateExport('day');
+  });
   $('weekExportBtn').addEventListener('click', function(){ generateExport('week'); });
   $('resetBtn').addEventListener('click', function(){
+    closeWeekMenu();
     var w = currentWeek();
     if (!w) return;
     askConfirm('همهٔ اطلاعات این هفته (جلسه‌ها، زمان‌ها، تست‌ها و یادداشت‌ها) پاک شود؟ خود هفته حذف نمی‌شود.', function(){
@@ -3815,6 +4493,7 @@ function bindEvents(){
   document.addEventListener('keydown', function(e){
     if (e.key !== 'Escape') return;
     if (!$('promptPanel').classList.contains('hidden')) closePrompt();
+    else if (!$('cellOverlay').classList.contains('hidden')) closeCellEditor();
     else if (!$('dateOverlay').classList.contains('hidden')) closeDatePicker();
     else if (!$('restoreOverlay').classList.contains('hidden')) closeRestore();
     else if (!$('confirmPanel').classList.contains('hidden')) closeConfirm();
@@ -3850,7 +4529,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 loadState();
 bindEvents();
 requestDurableStorage();
-showWeeks();
+setTab(state.tab);
 })();
 
 </script>

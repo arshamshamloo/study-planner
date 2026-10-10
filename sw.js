@@ -1,6 +1,6 @@
 /* cache-first service worker. The cache name carries the build hash, so every
    new build installs a fresh cache and the old one is removed. */
-var CACHE = 'gam-planner-375d670eb1';
+var CACHE = 'gam-planner-e16189770d';
 var ASSETS = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', function(e){
   e.waitUntil(
